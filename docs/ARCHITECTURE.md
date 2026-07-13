@@ -48,7 +48,8 @@ Validated request (Zod)
           ├── get_customer_profile ──────────────┤
           ├── get_usage_metrics ─────────────────┤
           ├── get_subscription ──────────────────┤
-          └── get_support_tickets ───────────────┘
+          ├── get_support_tickets ───────────────┤
+          └── search_knowledge_base ─────────────┘
           │
           └── strict structured analysis
    │
@@ -63,6 +64,28 @@ Validated analysis response
 Both modes return the same `AnalysisResponse` contract and execution-trace shape. The UI only uses provider metadata for display. This keeps the public demo free and makes the OpenAI adapter replaceable.
 
 The live agent begins with only the conversation and customer identifiers. It must retrieve evidence through tools instead of receiving a preassembled context object. Responses API output items are replayed into the next model turn together with validated `function_call_output` items. The loop ends when the model returns the strict analysis schema or when the six-turn safety limit is reached.
+
+## Retrieval flow
+
+```text
+Customer issue
+   │
+   ▼
+search_knowledge_base (validated query + limit)
+   │
+   ├── normalize terms
+   ├── expand controlled synonyms
+   ├── score title, section, keywords, and content
+   └── return top 1–5 approved chunks
+            │
+            ▼
+chunk id + content + exact citation
+            │
+            ▼
+structured analysis sources + visible execution trace
+```
+
+The local retrieval index is deliberately deterministic: portfolio reviewers get the same ranking without API cost or credentials. The storage and search boundary can later move to Supabase pgvector and OpenAI embeddings without changing the agent tool contract or UI response schema.
 
 ## Persistence boundary
 
@@ -118,6 +141,8 @@ The UI must not import vendor SDKs directly. Future external services will sit b
 - User-facing evidence summaries are stored; private chain-of-thought is not.
 - Row Level Security is enabled on every persisted table.
 - The service-role key is restricted to server-side repository code.
+- Knowledge retrieval can return only curated chunks included in the approved index.
+- Citations identify both a human-readable document section and a stable chunk ID.
 
 ## Suggested future folder structure
 

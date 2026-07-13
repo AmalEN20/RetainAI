@@ -5,6 +5,7 @@ export const mockAgentTrace: AgentTraceStep[] = [
   { id: "call-usage", kind: "tool", label: "Usage metrics analyzed", tool: "get_usage_metrics", status: "completed", durationMs: 24, summary: "Weekly active usage -42% · 18/50 seats active", readOnly: true },
   { id: "call-support", kind: "tool", label: "Support history reviewed", tool: "get_support_tickets", status: "completed", durationMs: 21, summary: "3 open tickets · oldest 12 days", readOnly: true },
   { id: "call-subscription", kind: "tool", label: "Subscription checked", tool: "get_subscription", status: "completed", durationMs: 15, summary: "Renewal in 14 days · $249 MRR", readOnly: true },
+  { id: "call-knowledge", kind: "tool", label: "Knowledge base searched", tool: "search_knowledge_base", status: "completed", durationMs: 12, summary: "3 policy chunks · billing, credits, and recovery guidance", readOnly: true },
   { id: "decision-retention", kind: "decision", label: "Retention plan prepared", tool: null, status: "completed", durationMs: 41, summary: "High-risk plan and customer-safe draft created", readOnly: true },
 ];
 
@@ -35,5 +36,6 @@ export const mockAnalysisResult: AnalysisResult = {
     { tool: "get_usage_metrics", label: "Usage metrics", detail: "Weekly active users down 42% in 30 days" },
     { tool: "get_subscription", label: "Subscription", detail: "Renews in 14 days · $249 MRR" },
     { tool: "get_support_tickets", label: "Support history", detail: "3 open tickets · oldest open for 12 days" },
+    { tool: "search_knowledge_base", label: "Retention policy", detail: "Credits require approval after a resolution path is assigned", citation: "Cancellation & Billing Policy § Retention credits", chunkId: "kb-cancel-03" },
   ],
 };

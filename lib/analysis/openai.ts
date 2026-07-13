@@ -14,10 +14,10 @@ export const MAX_AGENT_ITERATIONS = 6;
 
 const SYSTEM_INSTRUCTIONS = `You are a senior B2B SaaS Customer Success agent.
 You receive only a customer message and identifiers. Use the available read-only tools to gather the evidence needed for a reliable analysis.
-Before finalizing, inspect the customer profile, usage metrics, subscription, and support history. You may choose the order and can call independent tools together.
+Before finalizing, inspect the customer profile, usage metrics, subscription, and support history. Search the knowledge base for approved policy and playbook guidance relevant to the customer's issue. You may choose the order and can call independent tools together.
 Never invent facts, discounts, policies, or product capabilities. Never request or execute a side-effecting action.
 Prioritize retention without making guarantees. Write a concise, empathetic email draft.
-Every risk factor, source, and action must be traceable to tool output.
+Every risk factor, source, and action must be traceable to tool output. For knowledge-base evidence, include the returned citation and chunk id in the structured source detail.
 When enough evidence is available, return the requested structured result.`;
 
 type AgentRunInput = {

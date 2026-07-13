@@ -32,6 +32,7 @@ for (const [pathname, title, content] of [
   ["/customers", "Customers", "Monitor health, product usage"],
   ["/inbox", "Inbox", "Ready for AI analysis"],
   ["/approvals", "Approvals", "No action executes automatically"],
+  ["/knowledge", "Knowledge Base", "Retrieval playground"],
 ]) {
   test(`server-renders ${pathname}`, async () => {
     const response = await render(pathname);
@@ -55,18 +56,32 @@ test("returns a validated mock customer-success analysis", async () => {
   assert.equal(payload.result.intent, "cancellation_risk");
   assert.equal(payload.result.riskLevel, "high");
   assert.equal(payload.result.healthScore, 34);
-  assert.equal(payload.result.sources.length, 4);
+  assert.equal(payload.result.sources.length, 5);
   assert.match(payload.result.emailDraft.subject, /Acme/i);
-  assert.equal(payload.meta.toolCallCount, 4);
+  assert.equal(payload.meta.toolCallCount, 5);
   assert.equal(payload.meta.modelTurns, 2);
   assert.equal(payload.meta.maxIterations, 6);
-  assert.equal(payload.meta.trace.length, 5);
+  assert.equal(payload.meta.trace.length, 6);
   assert.ok(payload.meta.trace.every((step) => step.readOnly === true));
   assert.ok(
     payload.meta.trace
       .filter((step) => step.tool)
       .every((step) => !/send|write|delete|update/i.test(step.tool)),
   );
+});
+
+test("returns ranked knowledge chunks with citations", async () => {
+  const response = await requestApp("/api/knowledge/search", {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ query: "cancellation billing credit", limit: 3 }),
+  });
+
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.matches.length, 3);
+  assert.equal(payload.matches[0].documentId, "cancellation-policy");
+  assert.match(payload.matches[0].citation, /Cancellation & Billing Policy/);
 });
 
 test("rejects an unknown conversation", async () => {

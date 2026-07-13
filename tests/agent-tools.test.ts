@@ -7,8 +7,8 @@ import {
 } from "../lib/analysis/agent-tools";
 import { MAX_AGENT_ITERATIONS } from "../lib/analysis/openai";
 
-test("exposes only the four approved read-only tools", () => {
-  assert.equal(readOnlyAgentTools.length, 4);
+test("exposes only the five approved read-only tools", () => {
+  assert.equal(readOnlyAgentTools.length, 5);
 
   const names = readOnlyAgentTools.map((tool) => tool.name);
   assert.deepEqual(names.sort(), [
@@ -16,6 +16,7 @@ test("exposes only the four approved read-only tools", () => {
     "get_subscription",
     "get_support_tickets",
     "get_usage_metrics",
+    "search_knowledge_base",
   ]);
   assert.ok(readOnlyAgentTools.every((tool) => tool.type === "function" && tool.strict === true));
   assert.ok(names.every((name) => !/send|write|delete|update/i.test(name)));
@@ -35,12 +36,24 @@ test("validates tool arguments before execution", async () => {
     customerId: "cus_acme_001",
   });
 
-  assert.ok("company" in profile);
-  assert.equal(profile.company, "Acme Inc.");
+  assert.ok(profile && typeof profile === "object" && "company" in profile);
+  assert.equal((profile as { company: string }).company, "Acme Inc.");
   await assert.rejects(
     executeReadOnlyTool("get_customer_profile", { customerId: "cus_unknown" }),
     /Invalid input/,
   );
+});
+
+test("retrieves citation-ready policy chunks", async () => {
+  const output = await executeReadOnlyTool("search_knowledge_base", {
+    query: "cancellation billing credit",
+    limit: 3,
+  });
+
+  assert.ok(Array.isArray(output));
+  assert.equal(output.length, 3);
+  assert.equal(output[0].documentId, "cancellation-policy");
+  assert.match(output[0].citation, /Cancellation & Billing Policy/);
 });
 
 test("caps the agent loop", () => {

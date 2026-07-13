@@ -30,9 +30,11 @@ export const analysisResultSchema = z.object({
   }),
   sources: z.array(
     z.object({
-      tool: z.enum(["get_customer_profile", "get_usage_metrics", "get_subscription", "get_support_tickets"]),
+      tool: z.enum(["get_customer_profile", "get_usage_metrics", "get_subscription", "get_support_tickets", "search_knowledge_base"]),
       label: z.string(),
       detail: z.string(),
+      citation: z.string().optional(),
+      chunkId: z.string().optional(),
     }),
   ),
 });

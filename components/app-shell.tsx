@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   Bell,
+  BookOpenCheck,
   CheckSquare2,
   ChevronDown,
   Inbox,
@@ -24,6 +25,7 @@ const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Customers", href: "/customers", icon: Users },
   { name: "Inbox", href: "/inbox", icon: Inbox, badge: "4" },
+  { name: "Knowledge", href: "/knowledge", icon: BookOpenCheck },
   { name: "Approvals", href: "/approvals", icon: CheckSquare2, badge: "3" },
 ];
 

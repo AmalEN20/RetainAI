@@ -75,6 +75,16 @@ This milestone is intentionally front-end only and uses typed mock data.
 - Row Level Security is enabled and the service-role credential never reaches client code.
 - A zero-credential demo repository keeps the public portfolio experience usable at no cost.
 
+## Milestone five: grounded RAG knowledge base
+
+- Four curated company documents are divided into ten citation-ready chunks.
+- A deterministic retrieval engine normalizes the query, expands a controlled synonym set, scores approved chunks, and returns the top matches.
+- The agent receives a fifth validated read-only tool, `search_knowledge_base`.
+- Policy retrieval is required before the agent recommends cancellation, billing, credits, onboarding, or retention actions.
+- Structured sources can include an exact citation and chunk ID; private chain-of-thought remains excluded.
+- A dedicated Knowledge Base route lets reviewers run the same retrieval used by the agent and inspect ranked evidence.
+- The local index remains free and portable until the knowledge storage is moved to Supabase pgvector.
+
 ## Success criteria
 
 - A reviewer understands the product and primary workflow in under two minutes.
@@ -85,6 +95,7 @@ This milestone is intentionally front-end only and uses typed mock data.
 
 ## Later milestones
 
-1. Add knowledge-base retrieval with source citations.
-2. Add an approval audit timeline and filtering.
-3. Add one real integration only after the core workflow is reliable.
+1. Move knowledge chunks to Supabase pgvector and add optional embedding retrieval.
+2. Add retrieval evaluations and relevance benchmarks.
+3. Add an approval audit timeline and filtering.
+4. Add one real integration only after the core workflow is reliable.

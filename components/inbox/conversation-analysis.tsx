@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
+  BookOpenCheck,
   Check,
   CheckCircle2,
   ClipboardCheck,
@@ -30,6 +31,7 @@ const executionSteps = [
   { label: "Usage metrics analyzed", detail: "30-day trend", icon: Gauge },
   { label: "Support history reviewed", detail: "3 open tickets", icon: TicketCheck },
   { label: "Subscription checked", detail: "Renewal in 14 days", icon: FileText },
+  { label: "Knowledge base searched", detail: "Policies and playbooks", icon: BookOpenCheck },
   { label: "Retention plan prepared", detail: "Human review required", icon: ShieldCheck },
 ];
 
@@ -40,6 +42,7 @@ function traceIcon(tool: string | null) {
   if (tool === "get_usage_metrics") return Gauge;
   if (tool === "get_support_tickets") return TicketCheck;
   if (tool === "get_subscription") return FileText;
+  if (tool === "search_knowledge_base") return BookOpenCheck;
   return ShieldCheck;
 }
 
@@ -48,6 +51,7 @@ function traceLabel(tool: string | null, fallback: string) {
   if (tool === "get_usage_metrics") return "Usage metrics analyzed";
   if (tool === "get_support_tickets") return "Support history reviewed";
   if (tool === "get_subscription") return "Subscription checked";
+  if (tool === "search_knowledge_base") return "Knowledge base searched";
   return fallback;
 }
 
@@ -147,10 +151,10 @@ export function ConversationAnalysis() {
       <div className="rounded-xl border border-[#cfe6da] bg-[#f1f9f5] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d9f0e4] text-[#177553]"><Sparkles className="h-[18px] w-[18px]" /></span>
-          <div className="flex-1"><h3 className="text-sm font-bold text-[#1e4635]">Ready for AI analysis</h3><p className="mt-1 text-xs leading-5 text-[#5e7569]">The copilot will review customer health, usage, open tickets, and renewal timing before drafting a response.</p></div>
+          <div className="flex-1"><h3 className="text-sm font-bold text-[#1e4635]">Ready for AI analysis</h3><p className="mt-1 text-xs leading-5 text-[#5e7569]">The copilot will review customer signals and retrieve approved policy guidance before drafting a response.</p></div>
           <Button onClick={runAnalysis}><Sparkles className="h-4 w-4" /> Analyze message</Button>
         </div>
-        <div className="mt-4 grid gap-2 border-t border-[#d9eae1] pt-4 text-[10px] text-[#61756a] sm:grid-cols-4"><span>✓ Customer profile</span><span>✓ Usage metrics</span><span>✓ Support tickets</span><span>✓ Subscription</span></div>
+        <div className="mt-4 grid gap-2 border-t border-[#d9eae1] pt-4 text-[10px] text-[#61756a] sm:grid-cols-5"><span>✓ Customer profile</span><span>✓ Usage metrics</span><span>✓ Support tickets</span><span>✓ Subscription</span><span>✓ Knowledge base</span></div>
       </div>
     );
   }
@@ -209,7 +213,7 @@ export function ConversationAnalysis() {
             {error && <p className="border-t bg-[#fff5f2] px-5 py-3 text-[10px] font-medium text-[#a74739]">{error}</p>}
           </section>
 
-          <section className="rounded-xl border bg-white p-4"><div className="flex flex-wrap items-center gap-2"><span className="mr-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#929b95]">Sources used</span>{analysis.result.sources.map((source) => <span key={source.tool} title={source.detail} className="rounded-full border bg-[#fafbf8] px-2.5 py-1 text-[10px] font-medium text-[#647069]">{source.label}</span>)}<span className="ml-auto text-[9px] text-[#9aa29d]">Run {analysis.meta.runId.slice(0, 8)}</span></div></section>
+          <section className="rounded-xl border bg-white p-4"><div className="flex flex-wrap items-center gap-2"><span className="mr-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#929b95]">Sources used</span>{analysis.result.sources.map((source) => <span key={`${source.tool}-${source.chunkId ?? source.label}`} title={source.detail} className="rounded-full border bg-[#fafbf8] px-2.5 py-1 text-[10px] font-medium text-[#647069]">{source.citation ?? source.label}</span>)}<span className="ml-auto text-[9px] text-[#9aa29d]">Run {analysis.meta.runId.slice(0, 8)}</span></div></section>
         </div>
       )}
     </div>
