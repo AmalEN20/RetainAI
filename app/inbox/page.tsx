@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Clock3, Inbox, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Clock3, Inbox, Search, SlidersHorizontal } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { conversations } from "@/lib/mock-data";
+import { ConversationAnalysis } from "@/components/inbox/conversation-analysis";
 
 export const metadata: Metadata = { title: "Inbox" };
 
@@ -33,7 +34,7 @@ export default function InboxPage() {
           <div className="flex-1 p-5 md:p-7">
             <div className="mx-auto max-w-3xl space-y-5">
               <div className="rounded-xl border bg-white p-5 shadow-sm"><div className="mb-4 flex items-center gap-3"><Avatar initials="SC" /><div><p className="text-xs font-bold">Sarah Chen</p><p className="text-[10px] text-[#89938d]">sarah@acme.co · to Customer Success</p></div></div><p className="text-sm leading-6 text-[#465149]">Hi team,<br /><br />We have not been getting enough value from the product lately. Usage across our team is down, and the billing issue from last month is still unresolved.<br /><br />We are thinking about canceling before our next renewal. Can someone help us understand our options?<br /><br />Sarah</p></div>
-              <div className="rounded-xl border border-[#cfe6da] bg-[#f1f9f5] p-5"><div className="flex flex-col gap-4 sm:flex-row sm:items-center"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d9f0e4] text-[#177553]"><Sparkles className="h-[18px] w-[18px]" /></span><div className="flex-1"><h3 className="text-sm font-bold text-[#1e4635]">Ready for AI analysis</h3><p className="mt-1 text-xs leading-5 text-[#5e7569]">The copilot will review customer health, usage, open tickets, and renewal timing before drafting a response.</p></div><Button><Sparkles className="h-4 w-4" /> Analyze message</Button></div><div className="mt-4 grid gap-2 border-t border-[#d9eae1] pt-4 text-[10px] text-[#61756a] sm:grid-cols-4"><span>✓ Customer profile</span><span>✓ Usage metrics</span><span>✓ Support tickets</span><span>✓ Subscription</span></div></div>
+              <ConversationAnalysis />
             </div>
           </div>
         </section>

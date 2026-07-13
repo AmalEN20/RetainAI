@@ -70,7 +70,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </div>
         <div className="flex items-center gap-2 text-[11px] text-[#8fa298]">
           <span className="h-2 w-2 rounded-full bg-[#56ce96] shadow-[0_0_0_3px_rgba(86,206,150,0.12)]" />
-          UI demo · Mock data
+          AI workflow · Demo ready
         </div>
       </div>
 

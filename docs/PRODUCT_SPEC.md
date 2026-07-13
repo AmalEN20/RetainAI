@@ -28,7 +28,7 @@ RetainAI turns fragmented customer signals into a clear next action. It does not
 5. The proposed email and follow-up task enter the Approvals queue.
 6. A human approves, edits, or rejects each action.
 
-## First milestone: UI shell
+## Milestone one: UI shell
 
 This milestone is intentionally front-end only and uses typed mock data.
 
@@ -46,6 +46,16 @@ This milestone is intentionally front-end only and uses typed mock data.
 - Real email delivery or task creation.
 - Background agents and scheduled jobs.
 
+## Milestone two: controlled analysis workflow
+
+- A working Analyze action in the cancellation-risk conversation.
+- Server-side customer context tools for profile, usage, subscription, and support data.
+- A shared Zod contract for mock and OpenAI analysis results.
+- An agent execution timeline that exposes safe summaries, not hidden reasoning.
+- Risk evidence, retention actions, editable email draft, and source labels.
+- Session-local handoff into Approvals with approve, edit, reject, and undo controls.
+- Deterministic mock mode by default, with OpenAI mode and automatic safe fallback.
+
 ## Success criteria
 
 - A reviewer understands the product and primary workflow in under two minutes.
@@ -56,9 +66,8 @@ This milestone is intentionally front-end only and uses typed mock data.
 
 ## Later milestones
 
-1. Add a controlled server-side analysis workflow with structured output.
-2. Replace mock data access with Supabase repositories.
-3. Expose customer data access as validated AI tools.
-4. Add knowledge-base retrieval with source citations.
-5. Persist agent runs and approval decisions.
-6. Add one real integration only after the core workflow is reliable.
+1. Replace mock data access with Supabase repositories.
+2. Expose customer data access as validated OpenAI tools.
+3. Add knowledge-base retrieval with source citations.
+4. Persist agent runs and approval decisions.
+5. Add one real integration only after the core workflow is reliable.

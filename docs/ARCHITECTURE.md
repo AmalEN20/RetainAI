@@ -26,6 +26,34 @@ Next.js App Router
 
 All pages are server-rendered by default. Only the application shell is a client component because it manages mobile navigation and reads the current route.
 
+## Milestone-two request flow
+
+```text
+Inbox client
+   │ POST /api/analyze
+   ▼
+Validated request (Zod)
+   │
+   ├── get_customer_profile
+   ├── get_usage_metrics
+   ├── get_subscription
+   └── get_support_tickets
+   │
+   ├── AI_MODE=mock   ──► verified deterministic result
+   └── AI_MODE=openai ──► Responses API + strict Zod format
+                              │ failure / missing key
+                              └──► verified safe fallback
+   │
+   ▼
+Validated analysis response
+   │
+   ├── risk evidence and retention plan
+   ├── editable email draft
+   └── session-local approval handoff
+```
+
+Both modes return the same `AnalysisResponse` contract. The UI does not know which provider produced the result beyond display metadata. This keeps the public demo free and makes the OpenAI adapter replaceable.
+
 ## Planned application boundaries
 
 ```text
