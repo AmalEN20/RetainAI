@@ -57,6 +57,16 @@ test("returns a validated mock customer-success analysis", async () => {
   assert.equal(payload.result.healthScore, 34);
   assert.equal(payload.result.sources.length, 4);
   assert.match(payload.result.emailDraft.subject, /Acme/i);
+  assert.equal(payload.meta.toolCallCount, 4);
+  assert.equal(payload.meta.modelTurns, 2);
+  assert.equal(payload.meta.maxIterations, 6);
+  assert.equal(payload.meta.trace.length, 5);
+  assert.ok(payload.meta.trace.every((step) => step.readOnly === true));
+  assert.ok(
+    payload.meta.trace
+      .filter((step) => step.tool)
+      .every((step) => !/send|write|delete|update/i.test(step.tool)),
+  );
 });
 
 test("rejects an unknown conversation", async () => {

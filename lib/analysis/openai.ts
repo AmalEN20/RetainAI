@@ -1,31 +1,111 @@
 import OpenAI from "openai";
+import type { ResponseInput } from "openai/resources/responses/responses";
+import { toResponseInputItems } from "openai/lib/responses/ResponseInputItems";
 import { zodTextFormat } from "openai/helpers/zod";
-import { analysisResultSchema, type AnalysisResult } from "./schema";
-import type { CustomerContext } from "./tools";
+import {
+  executeReadOnlyTool,
+  isAgentToolName,
+  readOnlyAgentTools,
+  summarizeToolOutput,
+} from "./agent-tools";
+import { analysisResultSchema, type AgentTraceStep, type AnalysisResult } from "./schema";
 
-const SYSTEM_INSTRUCTIONS = `You are a senior B2B SaaS Customer Success analyst.
-Analyze only the supplied customer context. Never invent facts, discounts, policies, or product capabilities.
+export const MAX_AGENT_ITERATIONS = 6;
+
+const SYSTEM_INSTRUCTIONS = `You are a senior B2B SaaS Customer Success agent.
+You receive only a customer message and identifiers. Use the available read-only tools to gather the evidence needed for a reliable analysis.
+Before finalizing, inspect the customer profile, usage metrics, subscription, and support history. You may choose the order and can call independent tools together.
+Never invent facts, discounts, policies, or product capabilities. Never request or execute a side-effecting action.
 Prioritize retention without making guarantees. Write a concise, empathetic email draft.
-Every risk factor and action must be traceable to the supplied tool data.
-Return only the requested structured result.`;
+Every risk factor, source, and action must be traceable to tool output.
+When enough evidence is available, return the requested structured result.`;
 
-export async function analyzeWithOpenAI(context: CustomerContext) {
+type AgentRunInput = {
+  conversationId: number;
+  customerId: "cus_acme_001";
+  subject: string;
+  message: string;
+};
+
+export async function runCustomerSuccessAgent(agentInput: AgentRunInput) {
   const model = process.env.OPENAI_MODEL || "gpt-5.5";
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-  const response = await client.responses.parse({
-    model,
-    instructions: SYSTEM_INSTRUCTIONS,
-    input: JSON.stringify(context),
-    text: {
-      format: zodTextFormat(analysisResultSchema, "customer_success_analysis"),
-      verbosity: "low",
+  const input: ResponseInput = [
+    {
+      role: "user",
+      content: JSON.stringify(agentInput),
     },
-  });
+  ];
+  const trace: AgentTraceStep[] = [];
+  let modelTurns = 0;
 
-  if (!response.output_parsed) {
-    throw new Error("OpenAI returned no structured analysis.");
+  for (let iteration = 0; iteration < MAX_AGENT_ITERATIONS; iteration += 1) {
+    modelTurns += 1;
+    const modelStartedAt = Date.now();
+    const response = await client.responses.parse({
+      model,
+      instructions: SYSTEM_INSTRUCTIONS,
+      input,
+      tools: readOnlyAgentTools,
+      tool_choice: "auto",
+      parallel_tool_calls: true,
+      text: {
+        format: zodTextFormat(analysisResultSchema, "customer_success_analysis"),
+        verbosity: "low",
+      },
+    });
+
+    input.push(...toResponseInputItems(response.output));
+    const toolCalls = response.output.filter((item) => item.type === "function_call");
+
+    if (toolCalls.length === 0) {
+      if (!response.output_parsed) {
+        throw new Error("Agent stopped without a structured analysis.");
+      }
+
+      trace.push({
+        id: `decision-${response.id}`,
+        kind: "decision",
+        label: "Retention plan prepared",
+        tool: null,
+        status: "completed",
+        durationMs: Date.now() - modelStartedAt,
+        summary: "Risk assessment, retention plan, and approval-safe draft created",
+        readOnly: true,
+      });
+
+      return {
+        result: response.output_parsed as AnalysisResult,
+        model,
+        trace,
+        modelTurns,
+      };
+    }
+
+    for (const call of toolCalls) {
+      const toolStartedAt = Date.now();
+      if (!isAgentToolName(call.name)) {
+        throw new Error(`Agent requested an unregistered tool: ${call.name}`);
+      }
+
+      const output = executeReadOnlyTool(call.name, call.parsed_arguments);
+      trace.push({
+        id: call.call_id,
+        kind: "tool",
+        label: call.name.replaceAll("_", " "),
+        tool: call.name,
+        status: "completed",
+        durationMs: Date.now() - toolStartedAt,
+        summary: summarizeToolOutput(call.name, output),
+        readOnly: true,
+      });
+      input.push({
+        type: "function_call_output",
+        call_id: call.call_id,
+        output: JSON.stringify(output),
+      });
+    }
   }
 
-  return { result: response.output_parsed as AnalysisResult, model };
+  throw new Error(`Agent exceeded the ${MAX_AGENT_ITERATIONS}-iteration safety limit.`);
 }

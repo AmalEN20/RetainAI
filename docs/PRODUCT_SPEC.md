@@ -56,6 +56,16 @@ This milestone is intentionally front-end only and uses typed mock data.
 - Session-local handoff into Approvals with approve, edit, reject, and undo controls.
 - Deterministic mock mode by default, with OpenAI mode and automatic safe fallback.
 
+## Milestone three: validated tool-calling agent
+
+- The OpenAI Responses API receives the conversation and customer identifiers, not a preassembled customer dossier.
+- The model selects from four allowlisted read-only tools: customer profile, usage, subscription, and support tickets.
+- Each tool call is validated with Zod before execution; unknown tools and customer IDs fail closed.
+- Tool results are returned to the model until it produces the strict analysis schema.
+- The loop is capped at six model turns to prevent runaway cost or execution.
+- The UI exposes an auditable execution trace without storing private chain-of-thought.
+- Replay mode mirrors the live trace so the public portfolio demo remains free and deterministic.
+
 ## Success criteria
 
 - A reviewer understands the product and primary workflow in under two minutes.
@@ -67,7 +77,6 @@ This milestone is intentionally front-end only and uses typed mock data.
 ## Later milestones
 
 1. Replace mock data access with Supabase repositories.
-2. Expose customer data access as validated OpenAI tools.
-3. Add knowledge-base retrieval with source citations.
-4. Persist agent runs and approval decisions.
-5. Add one real integration only after the core workflow is reliable.
+2. Add knowledge-base retrieval with source citations.
+3. Persist agent runs and approval decisions.
+4. Add one real integration only after the core workflow is reliable.

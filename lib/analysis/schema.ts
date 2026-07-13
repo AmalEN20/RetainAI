@@ -41,6 +41,17 @@ export type AnalysisResult = z.infer<typeof analysisResultSchema>;
 
 export type AnalysisMode = "mock" | "openai" | "fallback";
 
+export type AgentTraceStep = {
+  id: string;
+  kind: "tool" | "decision";
+  label: string;
+  tool: string | null;
+  status: "completed" | "blocked";
+  durationMs: number;
+  summary: string;
+  readOnly: boolean;
+};
+
 export type AnalysisResponse = {
   result: AnalysisResult;
   meta: {
@@ -48,6 +59,10 @@ export type AnalysisResponse = {
     model: string | null;
     runId: string;
     durationMs: number;
+    trace: AgentTraceStep[];
+    toolCallCount: number;
+    modelTurns: number;
+    maxIterations: number;
     note?: string;
   };
 };

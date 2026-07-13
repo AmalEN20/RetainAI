@@ -26,7 +26,6 @@ import { Button } from "@/components/ui/button";
 import type { AnalysisResponse } from "@/lib/analysis/schema";
 
 const executionSteps = [
-  { label: "Intent classified", detail: "Cancellation risk", icon: Mail },
   { label: "Customer profile retrieved", detail: "Acme Inc. · Pro", icon: Users },
   { label: "Usage metrics analyzed", detail: "30-day trend", icon: Gauge },
   { label: "Support history reviewed", detail: "3 open tickets", icon: TicketCheck },
@@ -35,6 +34,22 @@ const executionSteps = [
 ];
 
 const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+function traceIcon(tool: string | null) {
+  if (tool === "get_customer_profile") return Users;
+  if (tool === "get_usage_metrics") return Gauge;
+  if (tool === "get_support_tickets") return TicketCheck;
+  if (tool === "get_subscription") return FileText;
+  return ShieldCheck;
+}
+
+function traceLabel(tool: string | null, fallback: string) {
+  if (tool === "get_customer_profile") return "Customer profile retrieved";
+  if (tool === "get_usage_metrics") return "Usage metrics analyzed";
+  if (tool === "get_support_tickets") return "Support history reviewed";
+  if (tool === "get_subscription") return "Subscription checked";
+  return fallback;
+}
 
 export function ConversationAnalysis() {
   const [status, setStatus] = useState<"idle" | "analyzing" | "complete" | "error">("idle");
@@ -72,6 +87,7 @@ export function ConversationAnalysis() {
 
       const payload = (await response.json()) as AnalysisResponse;
       setAnalysis(payload);
+      setVisibleSteps(payload.meta.trace.length);
       setDraftBody(payload.result.emailDraft.body);
       setStatus("complete");
     } catch (caught) {
@@ -109,6 +125,14 @@ export function ConversationAnalysis() {
     setTimeout(() => setCopied(false), 1600);
   }
 
+  const displayedSteps = analysis
+    ? analysis.meta.trace.map((step) => ({
+        label: traceLabel(step.tool, step.label),
+        detail: `${step.summary} · ${step.durationMs}ms`,
+        icon: traceIcon(step.tool),
+      }))
+    : executionSteps;
+
   if (status === "idle") {
     return (
       <div className="rounded-xl border border-[#cfe6da] bg-[#f1f9f5] p-5">
@@ -137,15 +161,15 @@ export function ConversationAnalysis() {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#e3f2ea] text-[#177553]">
             {status === "analyzing" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
           </span>
-          <div className="flex-1"><h3 className="text-xs font-bold">Agent execution</h3><p className="mt-0.5 text-[10px] text-[#839087]">{status === "analyzing" ? "Gathering account context…" : `Completed ${executionSteps.length} controlled steps`}</p></div>
+          <div className="flex-1"><h3 className="text-xs font-bold">Agent execution</h3><p className="mt-0.5 text-[10px] text-[#839087]">{status === "analyzing" ? "Model is selecting read-only tools…" : `${analysis?.meta.toolCallCount ?? 0} tool calls · ${analysis?.meta.modelTurns ?? 0} model turns · max ${analysis?.meta.maxIterations ?? 6}`}</p></div>
           <Badge tone={status === "complete" ? "low" : "blue"}>{status === "complete" ? "Complete" : "Running"}</Badge>
         </div>
         <div className="grid gap-px bg-[#e7eae5] sm:grid-cols-2 lg:grid-cols-3">
-          {executionSteps.map((step, index) => {
+          {displayedSteps.map((step, index) => {
             const StepIcon = step.icon;
             const visible = index < visibleSteps;
             return (
-              <div key={step.label} className={`flex min-h-[74px] items-center gap-3 bg-white px-4 py-3 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-35"}`}>
+              <div key={`${step.label}-${index}`} className={`flex min-h-[74px] items-center gap-3 bg-white px-4 py-3 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-35"}`}>
                 <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${visible ? "bg-[#e9f6ef] text-[#177553]" : "bg-[#f0f2ee] text-[#9ba39e]"}`}>{visible ? <Check className="h-4 w-4" /> : <StepIcon className="h-4 w-4" />}</span>
                 <div><p className="text-[11px] font-bold text-[#334039]">{step.label}</p><p className="mt-1 text-[9px] text-[#8b958e]">{visible ? step.detail : "Waiting…"}</p></div>
               </div>

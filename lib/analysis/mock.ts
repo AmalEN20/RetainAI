@@ -1,4 +1,12 @@
-import type { AnalysisResult } from "./schema";
+import type { AgentTraceStep, AnalysisResult } from "./schema";
+
+export const mockAgentTrace: AgentTraceStep[] = [
+  { id: "call-profile", kind: "tool", label: "Customer profile retrieved", tool: "get_customer_profile", status: "completed", durationMs: 18, summary: "Acme Inc. · Pro plan · Health 34", readOnly: true },
+  { id: "call-usage", kind: "tool", label: "Usage metrics analyzed", tool: "get_usage_metrics", status: "completed", durationMs: 24, summary: "Weekly active usage -42% · 18/50 seats active", readOnly: true },
+  { id: "call-support", kind: "tool", label: "Support history reviewed", tool: "get_support_tickets", status: "completed", durationMs: 21, summary: "3 open tickets · oldest 12 days", readOnly: true },
+  { id: "call-subscription", kind: "tool", label: "Subscription checked", tool: "get_subscription", status: "completed", durationMs: 15, summary: "Renewal in 14 days · $249 MRR", readOnly: true },
+  { id: "decision-retention", kind: "decision", label: "Retention plan prepared", tool: null, status: "completed", durationMs: 41, summary: "High-risk plan and customer-safe draft created", readOnly: true },
+];
 
 export const mockAnalysisResult: AnalysisResult = {
   intent: "cancellation_risk",

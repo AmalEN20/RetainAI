@@ -1,4 +1,12 @@
-export type CustomerContext = ReturnType<typeof loadCustomerContext>;
+export function getConversation() {
+  return {
+    id: 1,
+    customerId: "cus_acme_001" as const,
+    subject: "Considering cancellation",
+    body: "We have not been getting enough value from the product lately. Usage across our team is down, and the billing issue from last month is still unresolved. We are thinking about canceling before our next renewal.",
+    receivedAt: "2026-07-13T09:42:00-07:00",
+  };
+}
 
 export function getCustomerProfile(customerId: string) {
   return {
@@ -44,21 +52,5 @@ export function getSupportTickets(customerId: string) {
       { subject: "Team permissions", status: "open", priority: "normal" },
       { subject: "Usage report export", status: "open", priority: "normal" },
     ],
-  };
-}
-
-export function loadCustomerContext() {
-  const customerId = "cus_acme_001";
-  return {
-    conversation: {
-      id: 1,
-      subject: "Considering cancellation",
-      body: "We have not been getting enough value from the product lately. Usage across our team is down, and the billing issue from last month is still unresolved. We are thinking about canceling before our next renewal.",
-      receivedAt: "2026-07-13T09:42:00-07:00",
-    },
-    customer: getCustomerProfile(customerId),
-    usage: getUsageMetrics(customerId),
-    subscription: getSubscription(customerId),
-    support: getSupportTickets(customerId),
   };
 }

@@ -4,7 +4,7 @@
 
 RetainAI is a portfolio-grade SaaS product that helps customer success teams identify churn risk, understand the evidence, and prepare the next best action. Customer-facing actions remain behind an explicit human approval step.
 
-This repository contains a polished SaaS shell and an end-to-end customer-risk workflow. It runs in a deterministic mock mode by default, so the public portfolio demo requires no API key, database, or paid service. A live OpenAI mode can be enabled locally.
+This repository contains a polished SaaS shell and an end-to-end customer-risk workflow powered by a validated tool-calling agent. It runs in a deterministic replay mode by default, so the public portfolio demo requires no API key, database, or paid service. A live OpenAI mode can be enabled locally.
 
 ## What is included
 
@@ -13,7 +13,9 @@ This repository contains a polished SaaS shell and an end-to-end customer-risk w
 - Inbox centered on the core cancellation-risk demo scenario.
 - Approvals queue showing a human-in-the-loop safety model.
 - Interactive `Analyze → Retention plan → Approval` workflow.
-- Animated, auditable tool-execution timeline.
+- A Responses API agent that selects from four validated, read-only business tools.
+- Animated, auditable tool-execution timeline with model-turn and safety-limit metadata.
+- A six-iteration agent-loop limit and an allowlisted tool registry.
 - Schema-validated analysis results and safe mock fallback.
 - Editable email drafts and working approve/reject decisions.
 - Responsive sidebar and mobile navigation.
@@ -70,6 +72,8 @@ If the live model is unavailable or no key is configured, the server returns the
 
 ```bash
 npm run lint
+npm run typecheck
+npm test
 npm run build
 ```
 
@@ -98,24 +102,23 @@ docs/
   ARCHITECTURE.md
   PRODUCT_SPEC.md
 lib/
-  analysis/           Schemas, mock tools, mock result, OpenAI adapter
+  analysis/           Schemas, validated tool registry, replay result, agent loop
   mock-data.ts        Typed portfolio demo data
   utils.ts            Shared class-name helper
 ```
 
 ## Core portfolio story
 
-The flagship demo begins with a customer email: “We are thinking about canceling.” RetainAI will eventually gather product usage, subscription, and support context; generate a risk assessment and retention plan; draft a response; then place every side-effecting action in the approvals queue.
+The flagship demo begins with a customer email: “We are thinking about canceling.” The live agent receives only the message and identifiers, selects the customer evidence it needs through read-only tools, generates a risk assessment and retention plan, drafts a response, then places every proposed side effect in the approvals queue.
 
-The workflow is now functional end to end. Customer context is loaded through isolated mock business tools, analyzed through a schema-controlled service, and converted into an approval request. The same response contract is used by both mock and OpenAI modes.
+The workflow is functional end to end. Every tool name and argument is validated before execution, model output must satisfy a strict Zod contract, and the loop stops after six turns. Replay and OpenAI modes share the same response contract and execution-trace UI.
 
 ## Roadmap
 
 1. Supabase repositories and seed data.
-2. OpenAI tool calling for selective customer-context retrieval.
-3. Knowledge-base retrieval with source citations.
-4. Persistent agent runs and approval audit log.
-5. One carefully selected real-world integration.
+2. Knowledge-base retrieval with source citations.
+3. Persistent agent runs and approval audit log.
+4. One carefully selected real-world integration.
 
 ## Portfolio deployment strategy
 

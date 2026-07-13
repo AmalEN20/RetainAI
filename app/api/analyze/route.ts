@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { analyzeWithOpenAI } from "@/lib/analysis/openai";
-import { mockAnalysisResult } from "@/lib/analysis/mock";
+import { MAX_AGENT_ITERATIONS, runCustomerSuccessAgent } from "@/lib/analysis/openai";
+import { mockAgentTrace, mockAnalysisResult } from "@/lib/analysis/mock";
 import { analysisRequestSchema, type AnalysisMode, type AnalysisResponse } from "@/lib/analysis/schema";
-import { loadCustomerContext } from "@/lib/analysis/tools";
+import { getConversation } from "@/lib/analysis/tools";
 
 export async function POST(request: Request) {
   const startedAt = Date.now();
@@ -19,18 +19,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
   }
 
-  const context = loadCustomerContext();
+  const conversation = getConversation();
   const requestedMode = process.env.AI_MODE === "openai" ? "openai" : "mock";
   let mode: AnalysisMode = "mock";
   let model: string | null = null;
   let result = mockAnalysisResult;
+  let trace = mockAgentTrace;
+  let modelTurns = 2;
   let note: string | undefined;
 
   if (requestedMode === "openai" && process.env.OPENAI_API_KEY) {
     try {
-      const openaiAnalysis = await analyzeWithOpenAI(context);
-      result = openaiAnalysis.result;
-      model = openaiAnalysis.model;
+      const agentRun = await runCustomerSuccessAgent({
+        conversationId: conversation.id,
+        customerId: conversation.customerId,
+        subject: conversation.subject,
+        message: conversation.body,
+      });
+      result = agentRun.result;
+      model = agentRun.model;
+      trace = agentRun.trace;
+      modelTurns = agentRun.modelTurns;
       mode = "openai";
     } catch {
       mode = "fallback";
@@ -48,6 +57,10 @@ export async function POST(request: Request) {
       model,
       runId: crypto.randomUUID(),
       durationMs: Date.now() - startedAt,
+      trace,
+      toolCallCount: trace.filter((step) => step.kind === "tool").length,
+      modelTurns,
+      maxIterations: MAX_AGENT_ITERATIONS,
       ...(note ? { note } : {}),
     },
   };

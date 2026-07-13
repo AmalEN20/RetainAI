@@ -26,7 +26,7 @@ Next.js App Router
 
 All pages are server-rendered by default. Only the application shell is a client component because it manages mobile navigation and reads the current route.
 
-## Milestone-two request flow
+## Current request flow
 
 ```text
 Inbox client
@@ -34,15 +34,23 @@ Inbox client
    ▼
 Validated request (Zod)
    │
-   ├── get_customer_profile
-   ├── get_usage_metrics
-   ├── get_subscription
-   └── get_support_tickets
+   ├── AI_MODE=mock ─────► deterministic result + replay trace
    │
-   ├── AI_MODE=mock   ──► verified deterministic result
-   └── AI_MODE=openai ──► Responses API + strict Zod format
-                              │ failure / missing key
-                              └──► verified safe fallback
+   └── AI_MODE=openai
+          │
+          ▼
+      Responses API agent ◄──────────────────────┐
+          │                                      │
+          │ function calls                       │ function outputs
+          ▼                                      │
+      allowlisted registry                       │
+          │ name + Zod argument validation       │
+          ├── get_customer_profile ──────────────┤
+          ├── get_usage_metrics ─────────────────┤
+          ├── get_subscription ──────────────────┤
+          └── get_support_tickets ───────────────┘
+          │
+          └── strict structured analysis
    │
    ▼
 Validated analysis response
@@ -52,7 +60,9 @@ Validated analysis response
    └── session-local approval handoff
 ```
 
-Both modes return the same `AnalysisResponse` contract. The UI does not know which provider produced the result beyond display metadata. This keeps the public demo free and makes the OpenAI adapter replaceable.
+Both modes return the same `AnalysisResponse` contract and execution-trace shape. The UI only uses provider metadata for display. This keeps the public demo free and makes the OpenAI adapter replaceable.
+
+The live agent begins with only the conversation and customer identifiers. It must retrieve evidence through tools instead of receiving a preassembled context object. Responses API output items are replayed into the next model turn together with validated `function_call_output` items. The loop ends when the model returns the strict analysis schema or when the six-turn safety limit is reached.
 
 ## Planned application boundaries
 
@@ -87,7 +97,9 @@ The UI must not import vendor SDKs directly. Future external services will sit b
 ## Safety model
 
 - Structured, validated model outputs rather than free-form action execution.
-- Read-only analysis tools are separate from side-effecting tools.
+- Only allowlisted read-only analysis tools are exposed to the model.
+- Tool names and arguments are validated before application code executes them.
+- The agent loop stops after six model turns.
 - Side-effecting actions create approval records instead of executing immediately.
 - Approval execution is idempotent and audit logged.
 - User-facing evidence summaries are stored; private chain-of-thought is not.
