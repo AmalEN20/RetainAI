@@ -78,3 +78,31 @@ test("rejects an unknown conversation", async () => {
 
   assert.equal(response.status, 404);
 });
+
+test("creates and updates an approval through validated endpoints", async () => {
+  const createResponse = await requestApp("/api/approvals", {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({
+      customerId: "cus_acme_001",
+      customer: "Acme Inc.",
+      initials: "AC",
+      action: "Send AI-drafted retention email",
+      description: "Human review required.",
+      risk: "High",
+      owner: "Sarah Chen",
+    }),
+  });
+  assert.equal(createResponse.status, 201);
+  const created = await createResponse.json();
+  assert.equal(created.approval.status, "pending");
+
+  const updateResponse = await requestApp("/api/approvals", {
+    method: "PATCH",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ id: created.approval.id, status: "approved" }),
+  });
+  assert.equal(updateResponse.status, 200);
+  const updated = await updateResponse.json();
+  assert.equal(updated.approval.status, "approved");
+});

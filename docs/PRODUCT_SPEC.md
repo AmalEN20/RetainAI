@@ -66,6 +66,15 @@ This milestone is intentionally front-end only and uses typed mock data.
 - The UI exposes an auditable execution trace without storing private chain-of-thought.
 - Replay mode mirrors the live trace so the public portfolio demo remains free and deterministic.
 
+## Milestone four: persistent customer-success workspace
+
+- A repository boundary supplies Dashboard, Customers, Inbox, agent tools, and Approvals.
+- Supabase stores customers, conversations, usage, subscriptions, support tickets, agent runs, and approval decisions.
+- Every completed analysis writes its structured result and safe execution trace to an audit-friendly agent run.
+- Creating, editing, approving, rejecting, and undoing approval decisions uses validated server endpoints.
+- Row Level Security is enabled and the service-role credential never reaches client code.
+- A zero-credential demo repository keeps the public portfolio experience usable at no cost.
+
 ## Success criteria
 
 - A reviewer understands the product and primary workflow in under two minutes.
@@ -76,7 +85,6 @@ This milestone is intentionally front-end only and uses typed mock data.
 
 ## Later milestones
 
-1. Replace mock data access with Supabase repositories.
-2. Add knowledge-base retrieval with source citations.
-3. Persist agent runs and approval decisions.
-4. Add one real integration only after the core workflow is reliable.
+1. Add knowledge-base retrieval with source citations.
+2. Add an approval audit timeline and filtering.
+3. Add one real integration only after the core workflow is reliable.

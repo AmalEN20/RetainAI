@@ -4,12 +4,13 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { conversations } from "@/lib/mock-data";
+import { listConversations } from "@/lib/data/repository";
 import { ConversationAnalysis } from "@/components/inbox/conversation-analysis";
 
 export const metadata: Metadata = { title: "Inbox" };
 
-export default function InboxPage() {
+export default async function InboxPage() {
+  const conversations = await listConversations();
   const selected = conversations[0];
   return (
     <div className="page-enter space-y-6">

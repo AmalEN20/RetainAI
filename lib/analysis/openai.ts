@@ -88,7 +88,7 @@ export async function runCustomerSuccessAgent(agentInput: AgentRunInput) {
         throw new Error(`Agent requested an unregistered tool: ${call.name}`);
       }
 
-      const output = executeReadOnlyTool(call.name, call.parsed_arguments);
+      const output = await executeReadOnlyTool(call.name, call.parsed_arguments);
       trace.push({
         id: call.call_id,
         kind: "tool",

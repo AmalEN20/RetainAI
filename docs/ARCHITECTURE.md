@@ -57,12 +57,25 @@ Validated analysis response
    │
    ├── risk evidence and retention plan
    ├── editable email draft
-   └── session-local approval handoff
+   └── persisted approval handoff
 ```
 
 Both modes return the same `AnalysisResponse` contract and execution-trace shape. The UI only uses provider metadata for display. This keeps the public demo free and makes the OpenAI adapter replaceable.
 
 The live agent begins with only the conversation and customer identifiers. It must retrieve evidence through tools instead of receiving a preassembled context object. Responses API output items are replayed into the next model turn together with validated `function_call_output` items. The loop ends when the model returns the strict analysis schema or when the six-turn safety limit is reached.
+
+## Persistence boundary
+
+```text
+Server-rendered routes ─┐
+Analysis tools ─────────┼──► data repository ──► Supabase PostgreSQL
+Agent-run writer ───────┤          │
+Approvals API ──────────┘          └──► demo repository (no credentials)
+```
+
+Supabase is optional and server-only. The repository selects it when `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured, otherwise it uses deterministic demo records. UI modules never import the Supabase SDK or credentials.
+
+The schema separates operational customer data from AI history. `agent_runs` stores the validated result and safe execution trace as JSONB. `approvals` references an agent run when available and records each human decision independently. Usage, subscription, and support tables are queried by the same read-only tools exposed to the model.
 
 ## Planned application boundaries
 
@@ -103,6 +116,8 @@ The UI must not import vendor SDKs directly. Future external services will sit b
 - Side-effecting actions create approval records instead of executing immediately.
 - Approval execution is idempotent and audit logged.
 - User-facing evidence summaries are stored; private chain-of-thought is not.
+- Row Level Security is enabled on every persisted table.
+- The service-role key is restricted to server-side repository code.
 
 ## Suggested future folder structure
 

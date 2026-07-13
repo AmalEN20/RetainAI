@@ -4,11 +4,15 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { customers } from "@/lib/mock-data";
+import { listCustomers } from "@/lib/data/repository";
 
 export const metadata: Metadata = { title: "Customers" };
 
-export default function CustomersPage() {
+export default async function CustomersPage() {
+  const customers = await listCustomers();
+  const healthy = customers.filter((customer) => customer.risk === "Low").length;
+  const atRisk = customers.filter((customer) => customer.risk !== "Low").length;
+  const renewingSoon = customers.filter((customer) => customer.renewalDays <= 30).length;
   return (
     <div className="page-enter space-y-6">
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -17,7 +21,7 @@ export default function CustomersPage() {
       </section>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[{label:"Total customers",value:"128",sub:"+6 this month"},{label:"Healthy",value:"96",sub:"75% of portfolio"},{label:"At risk",value:"12",sub:"4 high priority"},{label:"Renewing soon",value:"18",sub:"Next 30 days"}].map((item) => <Card key={item.label} className="px-4 py-3.5"><p className="text-[11px] font-semibold text-[#7b867f]">{item.label}</p><p className="mt-2 text-2xl font-bold tracking-[-0.04em]">{item.value}</p><p className="mt-1 text-[10px] text-[#929b95]">{item.sub}</p></Card>)}
+        {[{label:"Total customers",value:String(customers.length),sub:"Connected portfolio"},{label:"Healthy",value:String(healthy),sub:`${Math.round((healthy / customers.length) * 100)}% of portfolio`},{label:"At risk",value:String(atRisk),sub:`${customers.filter((customer) => customer.risk === "High").length} high priority`},{label:"Renewing soon",value:String(renewingSoon),sub:"Next 30 days"}].map((item) => <Card key={item.label} className="px-4 py-3.5"><p className="text-[11px] font-semibold text-[#7b867f]">{item.label}</p><p className="mt-2 text-2xl font-bold tracking-[-0.04em]">{item.value}</p><p className="mt-1 text-[10px] text-[#929b95]">{item.sub}</p></Card>)}
       </section>
 
       <Card className="overflow-hidden">
@@ -42,7 +46,7 @@ export default function CustomersPage() {
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between border-t px-5 py-3 text-[11px] text-[#87918a]"><span>Showing 6 of 128 customers</span><div className="flex gap-2"><Button variant="outline" size="sm" disabled>Previous</Button><Button variant="outline" size="sm">Next</Button></div></div>
+        <div className="flex items-center justify-between border-t px-5 py-3 text-[11px] text-[#87918a]"><span>Showing {customers.length} customers</span><div className="flex gap-2"><Button variant="outline" size="sm" disabled>Previous</Button><Button variant="outline" size="sm" disabled>Next</Button></div></div>
       </Card>
     </div>
   );

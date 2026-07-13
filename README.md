@@ -4,7 +4,7 @@
 
 RetainAI is a portfolio-grade SaaS product that helps customer success teams identify churn risk, understand the evidence, and prepare the next best action. Customer-facing actions remain behind an explicit human approval step.
 
-This repository contains a polished SaaS shell and an end-to-end customer-risk workflow powered by a validated tool-calling agent. It runs in a deterministic replay mode by default, so the public portfolio demo requires no API key, database, or paid service. A live OpenAI mode can be enabled locally.
+This repository contains a polished SaaS shell and an end-to-end customer-risk workflow powered by a validated tool-calling agent. It runs in a deterministic replay mode with a demo repository by default, so the public portfolio demo requires no API key, database, or paid service. OpenAI and Supabase can be enabled independently.
 
 ## What is included
 
@@ -18,6 +18,8 @@ This repository contains a polished SaaS shell and an end-to-end customer-risk w
 - A six-iteration agent-loop limit and an allowlisted tool registry.
 - Schema-validated analysis results and safe mock fallback.
 - Editable email drafts and working approve/reject decisions.
+- Optional Supabase persistence for customer context, agent runs, and approval decisions.
+- Versioned SQL migration and a realistic six-customer seed dataset.
 - Responsive sidebar and mobile navigation.
 - Reusable shadcn/ui-style primitives built on Radix UI and Tailwind CSS.
 - Product and architecture documentation.
@@ -40,16 +42,15 @@ This repository contains a polished SaaS shell and an end-to-end customer-risk w
 - Lucide icons
 - OpenAI JavaScript SDK and Responses API
 - Zod for runtime request and model-output validation
+- Supabase JavaScript SDK with a server-only repository adapter
 - Vinext/Vite development and build runtime
-
-Supabase and external business integrations are intentionally deferred until the core workflow is stable.
 
 ## Run locally
 
 Requirements: Node.js 22.13 or newer and npm.
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/AmalEN20/RetainAI.git
 cd RetainAI
 npm install
 cp .env.example .env.local
@@ -67,6 +68,20 @@ OPENAI_MODEL=gpt-5.5
 ```
 
 If the live model is unavailable or no key is configured, the server returns the verified mock analysis and labels it as a safe fallback. API keys are used only on the server and must never be committed.
+
+## Enable Supabase persistence
+
+1. Create a free Supabase project.
+2. Run `supabase/migrations/202607130001_initial_schema.sql` in the SQL editor.
+3. Run `supabase/seed.sql` in the SQL editor.
+4. Add the following values to `.env.local`:
+
+```bash
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+The service-role key is read only by server code. Row Level Security is enabled for every table and no database key reaches the browser. Without these variables, RetainAI uses its safe demo repository. Demo writes survive navigation while the local server runs and reset when that process restarts.
 
 ## Quality checks
 
@@ -103,22 +118,25 @@ docs/
   PRODUCT_SPEC.md
 lib/
   analysis/           Schemas, validated tool registry, replay result, agent loop
+  data/               Supabase client, repository boundary, shared data types
   mock-data.ts        Typed portfolio demo data
   utils.ts            Shared class-name helper
+supabase/
+  migrations/         Versioned database schema
+  seed.sql            Idempotent portfolio dataset
 ```
 
 ## Core portfolio story
 
 The flagship demo begins with a customer email: “We are thinking about canceling.” The live agent receives only the message and identifiers, selects the customer evidence it needs through read-only tools, generates a risk assessment and retention plan, drafts a response, then places every proposed side effect in the approvals queue.
 
-The workflow is functional end to end. Every tool name and argument is validated before execution, model output must satisfy a strict Zod contract, and the loop stops after six turns. Replay and OpenAI modes share the same response contract and execution-trace UI.
+The workflow is functional end to end. Every tool name and argument is validated before execution, model output must satisfy a strict Zod contract, and the loop stops after six turns. Agent runs and human decisions persist in Supabase when configured. Replay and OpenAI modes share the same response contract and execution-trace UI.
 
 ## Roadmap
 
-1. Supabase repositories and seed data.
-2. Knowledge-base retrieval with source citations.
-3. Persistent agent runs and approval audit log.
-4. One carefully selected real-world integration.
+1. Knowledge-base retrieval with source citations.
+2. Approval audit-log timeline and filtering.
+3. One carefully selected real-world integration.
 
 ## Portfolio deployment strategy
 

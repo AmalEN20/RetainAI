@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { MAX_AGENT_ITERATIONS, runCustomerSuccessAgent } from "@/lib/analysis/openai";
 import { mockAgentTrace, mockAnalysisResult } from "@/lib/analysis/mock";
 import { analysisRequestSchema, type AnalysisMode, type AnalysisResponse } from "@/lib/analysis/schema";
-import { getConversation } from "@/lib/analysis/tools";
+import { getConversationById, saveAgentRun } from "@/lib/data/repository";
 
 export async function POST(request: Request) {
   const startedAt = Date.now();
@@ -15,11 +15,14 @@ export async function POST(request: Request) {
   }
 
   const parsed = analysisRequestSchema.safeParse(body);
-  if (!parsed.success || parsed.data.conversationId !== 1) {
+  if (!parsed.success) {
     return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
   }
 
-  const conversation = getConversation();
+  const conversation = await getConversationById(parsed.data.conversationId);
+  if (!conversation || conversation.id !== 1 || conversation.customerId !== "cus_acme_001") {
+    return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
+  }
   const requestedMode = process.env.AI_MODE === "openai" ? "openai" : "mock";
   let mode: AnalysisMode = "mock";
   let model: string | null = null;
@@ -64,6 +67,8 @@ export async function POST(request: Request) {
       ...(note ? { note } : {}),
     },
   };
+
+  await saveAgentRun(response, conversation).catch(() => false);
 
   return NextResponse.json(response, {
     headers: { "Cache-Control": "no-store" },

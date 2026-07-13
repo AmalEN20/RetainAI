@@ -55,14 +55,14 @@ export function isAgentToolName(name: string): name is AgentToolName {
   return name in registry;
 }
 
-export function executeReadOnlyTool(name: string, rawArguments: unknown) {
+export async function executeReadOnlyTool(name: string, rawArguments: unknown) {
   if (!isAgentToolName(name)) {
     throw new Error(`Tool "${name}" is not registered as read-only.`);
   }
 
   const tool = registry[name];
   const arguments_ = tool.schema.parse(rawArguments);
-  return tool.execute(arguments_);
+  return await tool.execute(arguments_);
 }
 
 export function summarizeToolOutput(name: AgentToolName, output: unknown) {

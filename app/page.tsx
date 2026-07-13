@@ -5,16 +5,10 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { customers, recentActivity } from "@/lib/mock-data";
+import { recentActivity } from "@/lib/mock-data";
+import { listApprovals, listConversations, listCustomers } from "@/lib/data/repository";
 
 export const metadata: Metadata = { title: "Dashboard" };
-
-const stats = [
-  { label: "Customers", value: "128", detail: "+6 this month", icon: Users, tone: "green" },
-  { label: "At risk", value: "12", detail: "4 need attention", icon: TrendingDown, tone: "red" },
-  { label: "Open conversations", value: "24", detail: "8 unread", icon: Inbox, tone: "blue" },
-  { label: "Pending approvals", value: "3", detail: "Oldest: 1 hour", icon: Clock3, tone: "amber" },
-];
 
 const toneClasses = {
   green: "bg-[#e9f6ef] text-[#177553]",
@@ -23,8 +17,15 @@ const toneClasses = {
   amber: "bg-[#fff6df] text-[#9a711a]",
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const [customers, conversations, approvals] = await Promise.all([listCustomers(), listConversations(), listApprovals()]);
   const atRisk = customers.filter((customer) => customer.risk !== "Low").slice(0, 4);
+  const stats = [
+    { label: "Customers", value: String(customers.length), detail: "Connected portfolio", icon: Users, tone: "green" },
+    { label: "At risk", value: String(customers.filter((customer) => customer.risk !== "Low").length), detail: `${customers.filter((customer) => customer.risk === "High").length} need attention`, icon: TrendingDown, tone: "red" },
+    { label: "Open conversations", value: String(conversations.length), detail: `${conversations.filter((conversation) => conversation.unread).length} unread`, icon: Inbox, tone: "blue" },
+    { label: "Pending approvals", value: String(approvals.filter((approval) => approval.status === "pending").length), detail: "Human review required", icon: Clock3, tone: "amber" },
+  ];
 
   return (
     <div className="page-enter space-y-6">

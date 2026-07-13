@@ -21,24 +21,24 @@ test("exposes only the four approved read-only tools", () => {
   assert.ok(names.every((name) => !/send|write|delete|update/i.test(name)));
 });
 
-test("recognizes registered tools and rejects side-effecting names", () => {
+test("recognizes registered tools and rejects side-effecting names", async () => {
   assert.equal(isAgentToolName("get_customer_profile"), true);
   assert.equal(isAgentToolName("send_email"), false);
-  assert.throws(
-    () => executeReadOnlyTool("send_email", { customerId: "cus_acme_001" }),
+  await assert.rejects(
+    executeReadOnlyTool("send_email", { customerId: "cus_acme_001" }),
     /not registered as read-only/,
   );
 });
 
-test("validates tool arguments before execution", () => {
-  const profile = executeReadOnlyTool("get_customer_profile", {
+test("validates tool arguments before execution", async () => {
+  const profile = await executeReadOnlyTool("get_customer_profile", {
     customerId: "cus_acme_001",
   });
 
   assert.ok("company" in profile);
   assert.equal(profile.company, "Acme Inc.");
-  assert.throws(
-    () => executeReadOnlyTool("get_customer_profile", { customerId: "cus_unknown" }),
+  await assert.rejects(
+    executeReadOnlyTool("get_customer_profile", { customerId: "cus_unknown" }),
     /Invalid input/,
   );
 });
