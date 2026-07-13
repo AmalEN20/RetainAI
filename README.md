@@ -4,7 +4,7 @@
 
 RetainAI is a portfolio-grade SaaS product that helps customer success teams identify churn risk, understand the evidence, and prepare the next best action. Customer-facing actions remain behind an explicit human approval step.
 
-[Explore the case study](http://localhost:3000/case-study) · [Run the flagship workflow](http://localhost:3000/inbox) · [Inspect the evaluation report](docs/EVALUATION_REPORT.md)
+[Explore the live case study](https://retainai-copilot.amalai.chatgpt.site/case-study) · [Run the flagship workflow](https://retainai-copilot.amalai.chatgpt.site/inbox) · [Inspect the evaluation report](docs/EVALUATION_REPORT.md)
 
 This repository contains a polished SaaS shell and an end-to-end customer-risk workflow powered by a validated tool-calling agent. It runs in a deterministic replay mode with a demo repository by default, so the public portfolio demo requires no API key, database, or paid service. OpenAI and Supabase can be enabled independently.
 
