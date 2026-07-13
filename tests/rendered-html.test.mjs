@@ -34,6 +34,7 @@ for (const [pathname, title, content] of [
   ["/approvals", "Approvals", "No action executes automatically"],
   ["/knowledge", "Knowledge Base", "Retrieval playground"],
   ["/runs", "Agent Runs", "checks passing"],
+  ["/case-study", "Case Study", "One CSM"],
 ]) {
   test(`server-renders ${pathname}`, async () => {
     const response = await render(pathname);

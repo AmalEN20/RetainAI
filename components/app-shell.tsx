@@ -7,13 +7,13 @@ import {
   Bell,
   BookOpenCheck,
   Activity,
+  BriefcaseBusiness,
   CheckSquare2,
   ChevronDown,
   Inbox,
   LayoutDashboard,
   Menu,
   Search,
-  Settings,
   Sparkles,
   Users,
   X,
@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Case Study", href: "/case-study", icon: BriefcaseBusiness },
   { name: "Customers", href: "/customers", icon: Users },
   { name: "Inbox", href: "/inbox", icon: Inbox, badge: "4" },
   { name: "Knowledge", href: "/knowledge", icon: BookOpenCheck },
@@ -116,7 +117,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <kbd className="rounded border bg-white px-1.5 py-0.5 text-[10px] text-[#8b948e]">⌘ K</kbd>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" className="hidden sm:inline-flex"><Settings className="h-3.5 w-3.5" /> Demo settings</Button>
+            <Button variant="outline" size="sm" className="hidden sm:inline-flex" asChild><Link href="/case-study"><BriefcaseBusiness className="h-3.5 w-3.5" /> Case study</Link></Button>
             <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
               <Bell className="h-[18px] w-[18px]" />
               <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-[#d75845] ring-2 ring-white" />

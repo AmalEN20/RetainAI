@@ -94,6 +94,15 @@ This milestone is intentionally front-end only and uses typed mock data.
 - A CLI evaluation runner exits non-zero on regression and publishes clear evidence for each assertion.
 - GitHub Actions runs type checking, linting, the production build, tests, and the evaluation suite on pushes and pull requests.
 
+## Milestone seven: portfolio launch
+
+- A recruiter-first case study explains the problem, outcome, flagship workflow, architecture, safety model, and evaluation evidence.
+- Direct calls to action route reviewers into the cancellation demo, Runs & Evals, and source code.
+- The README includes a concise product narrative, architecture diagram, route map, and links to the evaluation report.
+- A three-minute demo script keeps the walkthrough focused on engineering decisions rather than UI navigation.
+- Resume, portfolio, LinkedIn, and interview copy is packaged with the repository.
+- The public deployment runs in zero-cost replay mode with no credentials or paid services required.
+
 ## Success criteria
 
 - A reviewer understands the product and primary workflow in under two minutes.

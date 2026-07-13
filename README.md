@@ -4,7 +4,17 @@
 
 RetainAI is a portfolio-grade SaaS product that helps customer success teams identify churn risk, understand the evidence, and prepare the next best action. Customer-facing actions remain behind an explicit human approval step.
 
+[Explore the case study](http://localhost:3000/case-study) · [Run the flagship workflow](http://localhost:3000/inbox) · [Inspect the evaluation report](docs/EVALUATION_REPORT.md)
+
 This repository contains a polished SaaS shell and an end-to-end customer-risk workflow powered by a validated tool-calling agent. It runs in a deterministic replay mode with a demo repository by default, so the public portfolio demo requires no API key, database, or paid service. OpenAI and Supabase can be enabled independently.
+
+## Product preview
+
+![RetainAI recruiter case study](public/screenshots/case-study.png)
+
+| Cancellation-risk inbox | Agent runs and evals |
+| --- | --- |
+| ![RetainAI inbox](public/screenshots/inbox.png) | ![RetainAI agent runs](public/screenshots/runs.png) |
 
 ## What is included
 
@@ -40,6 +50,28 @@ This repository contains a polished SaaS shell and an end-to-end customer-risk w
 | `/approvals` | Review proposed actions before execution |
 | `/knowledge` | Search the same approved knowledge chunks available to the agent |
 | `/runs` | Inspect execution traces and deterministic evaluation results |
+| `/case-study` | Recruiter-focused product and engineering case study |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Customer message] --> B[Responses API agent loop]
+    B --> C[Customer profile]
+    B --> D[Usage metrics]
+    B --> E[Subscription]
+    B --> F[Support tickets]
+    B --> G[Knowledge retrieval]
+    C --> B
+    D --> B
+    E --> B
+    F --> B
+    G --> B
+    B --> H[Structured retention plan]
+    H --> I[Human approval queue]
+    B --> J[Agent run trace]
+    J --> K[Deterministic evals]
+```
 
 ## Tech stack
 
@@ -106,6 +138,8 @@ npm run build
 - [Product specification](docs/PRODUCT_SPEC.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Evaluation report](docs/EVALUATION_REPORT.md)
+- [Three-minute demo script](docs/DEMO_SCRIPT.md)
+- [Resume and LinkedIn copy](docs/PORTFOLIO_COPY.md)
 
 ## Project structure
 
@@ -114,6 +148,7 @@ app/
   api/analyze/        Validated analysis endpoint
   api/knowledge/      Ranked retrieval endpoint
   approvals/          Approvals route
+  case-study/         Recruiter-facing engineering story
   customers/          Customers route
   inbox/              Inbox route
   knowledge/          Knowledge Base and retrieval playground
@@ -128,7 +163,9 @@ components/
   app-shell.tsx       Sidebar, header, and mobile navigation
 docs/
   ARCHITECTURE.md
+  DEMO_SCRIPT.md
   EVALUATION_REPORT.md
+  PORTFOLIO_COPY.md
   PRODUCT_SPEC.md
 lib/
   analysis/           Schemas, validated tool registry, replay result, agent loop
