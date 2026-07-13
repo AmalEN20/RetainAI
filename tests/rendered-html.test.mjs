@@ -33,6 +33,7 @@ for (const [pathname, title, content] of [
   ["/inbox", "Inbox", "Ready for AI analysis"],
   ["/approvals", "Approvals", "No action executes automatically"],
   ["/knowledge", "Knowledge Base", "Retrieval playground"],
+  ["/runs", "Agent Runs", "checks passing"],
 ]) {
   test(`server-renders ${pathname}`, async () => {
     const response = await render(pathname);

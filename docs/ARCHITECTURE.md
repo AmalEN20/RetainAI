@@ -87,6 +87,26 @@ structured analysis sources + visible execution trace
 
 The local retrieval index is deliberately deterministic: portfolio reviewers get the same ranking without API cost or credentials. The storage and search boundary can later move to Supabase pgvector and OpenAI embeddings without changing the agent tool contract or UI response schema.
 
+## Observability and evaluation
+
+```text
+Analysis response
+   ├── structured result
+   ├── safe execution trace
+   ├── latency / turns / tool count
+   └── citations
+            │
+            ▼
+        Agent Run
+            │
+            ├── Runs & Evals UI
+            └── Supabase agent_runs (when configured)
+
+Eval fixtures ──► deterministic checks ──► CLI exit code ──► GitHub Actions gate
+```
+
+The eval harness imports the same schemas, allowlisted tools, mock result, and retrieval implementation used by the application. This prevents a separate “demo-only” scoring path. Evidence for every check is visible in the CLI output and the Runs & Evals page.
+
 ## Persistence boundary
 
 ```text

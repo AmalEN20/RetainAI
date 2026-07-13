@@ -1,4 +1,5 @@
 import type { RiskLevel } from "@/lib/mock-data";
+import type { AgentTraceStep, AnalysisMode } from "@/lib/analysis/schema";
 
 export type CustomerRecord = {
   id: string;
@@ -46,4 +47,23 @@ export type ApprovalRecord = {
   subject?: string;
   body?: string;
   runId?: string;
+};
+
+export type AgentRunRecord = {
+  id: string;
+  customer: string;
+  initials: string;
+  conversation: string;
+  created: string;
+  mode: AnalysisMode;
+  model: string | null;
+  status: "completed" | "blocked";
+  riskLevel: "high" | "medium" | "low";
+  summary: string;
+  durationMs: number;
+  toolCallCount: number;
+  modelTurns: number;
+  citationCount: number;
+  safety: "passed" | "blocked";
+  trace: AgentTraceStep[];
 };

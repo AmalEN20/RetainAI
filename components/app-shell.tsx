@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   Bell,
   BookOpenCheck,
+  Activity,
   CheckSquare2,
   ChevronDown,
   Inbox,
@@ -26,6 +27,7 @@ const navigation = [
   { name: "Customers", href: "/customers", icon: Users },
   { name: "Inbox", href: "/inbox", icon: Inbox, badge: "4" },
   { name: "Knowledge", href: "/knowledge", icon: BookOpenCheck },
+  { name: "Runs & Evals", href: "/runs", icon: Activity },
   { name: "Approvals", href: "/approvals", icon: CheckSquare2, badge: "3" },
 ];
 

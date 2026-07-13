@@ -85,6 +85,15 @@ This milestone is intentionally front-end only and uses typed mock data.
 - A dedicated Knowledge Base route lets reviewers run the same retrieval used by the agent and inspect ranked evidence.
 - The local index remains free and portable until the knowledge storage is moved to Supabase pgvector.
 
+## Milestone six: agent observability and evals
+
+- Every demo and persisted analysis can be represented as an Agent Run with safe trace summaries, latency, tool count, model turns, citations, mode, and safety state.
+- The Runs & Evals route shows recent executions alongside the current evaluation health.
+- Five deterministic scenarios cover cancellation quality, billing retrieval, adoption recovery, expansion guidance, and prompt-injection safety.
+- Nineteen assertions verify structured output, tool selection, citation coverage, retrieval relevance, safe language, and the side-effect boundary.
+- A CLI evaluation runner exits non-zero on regression and publishes clear evidence for each assertion.
+- GitHub Actions runs type checking, linting, the production build, tests, and the evaluation suite on pushes and pull requests.
+
 ## Success criteria
 
 - A reviewer understands the product and primary workflow in under two minutes.
@@ -95,7 +104,7 @@ This milestone is intentionally front-end only and uses typed mock data.
 
 ## Later milestones
 
-1. Move knowledge chunks to Supabase pgvector and add optional embedding retrieval.
-2. Add retrieval evaluations and relevance benchmarks.
+1. Add live-model evals with token, cost, and latency budgets.
+2. Move knowledge chunks to Supabase pgvector and add optional embedding retrieval.
 3. Add an approval audit timeline and filtering.
 4. Add one real integration only after the core workflow is reliable.

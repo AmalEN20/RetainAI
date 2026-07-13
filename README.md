@@ -19,6 +19,9 @@ This repository contains a polished SaaS shell and an end-to-end customer-risk w
 - A citation-ready RAG knowledge base with policies, playbooks, guides, and ranked chunks.
 - A fifth read-only agent tool for grounded policy retrieval.
 - Interactive Knowledge Base search that exposes scores, chunk IDs, and exact citations.
+- Agent Runs observability with safe execution traces, latency, model turns, tools, and citations.
+- A reproducible 19-check evaluation suite covering quality, retrieval, and prompt-injection safety.
+- GitHub Actions quality gates for type checking, linting, builds, tests, and evals.
 - Schema-validated analysis results and safe mock fallback.
 - Editable email drafts and working approve/reject decisions.
 - Optional Supabase persistence for customer context, agent runs, and approval decisions.
@@ -36,6 +39,7 @@ This repository contains a polished SaaS shell and an end-to-end customer-risk w
 | `/inbox` | Customer conversations and AI-analysis entry point |
 | `/approvals` | Review proposed actions before execution |
 | `/knowledge` | Search the same approved knowledge chunks available to the agent |
+| `/runs` | Inspect execution traces and deterministic evaluation results |
 
 ## Tech stack
 
@@ -92,6 +96,7 @@ The service-role key is read only by server code. Row Level Security is enabled 
 ```bash
 npm run lint
 npm run typecheck
+npm run evals
 npm test
 npm run build
 ```
@@ -100,6 +105,7 @@ npm run build
 
 - [Product specification](docs/PRODUCT_SPEC.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Evaluation report](docs/EVALUATION_REPORT.md)
 
 ## Project structure
 
@@ -111,6 +117,7 @@ app/
   customers/          Customers route
   inbox/              Inbox route
   knowledge/          Knowledge Base and retrieval playground
+  runs/               Agent observability and eval results
   globals.css         Tailwind theme and global styles
   layout.tsx          Root metadata and application shell
   page.tsx            Dashboard route
@@ -121,6 +128,7 @@ components/
   app-shell.tsx       Sidebar, header, and mobile navigation
 docs/
   ARCHITECTURE.md
+  EVALUATION_REPORT.md
   PRODUCT_SPEC.md
 lib/
   analysis/           Schemas, validated tool registry, replay result, agent loop
@@ -139,10 +147,12 @@ The flagship demo begins with a customer email: “We are thinking about canceli
 
 The workflow is functional end to end. Every tool name and argument is validated before execution, model output must satisfy a strict Zod contract, and the loop stops after six turns. Knowledge retrieval uses a deterministic ranked index in the zero-cost demo and returns exact chunk IDs and citations. Agent runs and human decisions persist in Supabase when configured.
 
+The same contracts are continuously checked by a deterministic evaluation harness. It covers cancellation analysis, billing escalation, adoption recovery, expansion guidance, and a prompt-injection attempt. The suite currently passes 19 of 19 assertions and runs automatically in CI.
+
 ## Roadmap
 
-1. Move knowledge chunks to Supabase pgvector and add optional embedding search.
-2. Add retrieval evaluations and relevance benchmarks.
+1. Add live-model evals with token, cost, and latency budgets.
+2. Move knowledge chunks to Supabase pgvector and add optional embedding search.
 3. Add an approval audit-log timeline and one real-world integration.
 
 ## Portfolio deployment strategy

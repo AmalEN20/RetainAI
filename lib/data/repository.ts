@@ -1,13 +1,19 @@
 import { approvals as demoApprovals, conversations as demoConversations, customers as demoCustomers } from "@/lib/mock-data";
 import type { AnalysisResponse } from "@/lib/analysis/schema";
-import type { ApprovalRecord, ApprovalStatus, ConversationRecord, CustomerRecord } from "./types";
+import type { AgentRunRecord, ApprovalRecord, ApprovalStatus, ConversationRecord, CustomerRecord } from "./types";
 import { getSupabaseAdmin } from "./supabase";
+import { demoAgentRuns } from "./demo-runs";
 
-const demoState = globalThis as typeof globalThis & { retainAiApprovals?: ApprovalRecord[] };
+const demoState = globalThis as typeof globalThis & { retainAiApprovals?: ApprovalRecord[]; retainAiAgentRuns?: AgentRunRecord[] };
 
 function getDemoApprovals() {
   demoState.retainAiApprovals ??= demoApprovals.map((approval) => ({ ...approval }));
   return demoState.retainAiApprovals;
+}
+
+function getDemoAgentRuns() {
+  demoState.retainAiAgentRuns ??= demoAgentRuns.map((run) => ({ ...run, trace: [...run.trace] }));
+  return demoState.retainAiAgentRuns;
 }
 
 function formatRelativeTime(value: string) {
@@ -155,7 +161,27 @@ export async function updateApproval(id: string, patch: { status?: ApprovalStatu
 
 export async function saveAgentRun(response: AnalysisResponse, conversation: ConversationRecord) {
   const supabase = getSupabaseAdmin();
-  if (!supabase) return false;
+  if (!supabase) {
+    getDemoAgentRuns().unshift({
+      id: response.meta.runId,
+      customer: conversation.customer,
+      initials: conversation.initials,
+      conversation: conversation.subject,
+      created: "Just now",
+      mode: response.meta.mode,
+      model: response.meta.model,
+      status: "completed",
+      riskLevel: response.result.riskLevel,
+      summary: response.result.summary,
+      durationMs: response.meta.durationMs,
+      toolCallCount: response.meta.toolCallCount,
+      modelTurns: response.meta.modelTurns,
+      citationCount: response.result.sources.filter((source) => source.citation).length,
+      safety: response.meta.trace.every((step) => step.readOnly) ? "passed" : "blocked",
+      trace: response.meta.trace,
+    });
+    return false;
+  }
   const { error } = await supabase.from("agent_runs").insert({
     id: response.meta.runId,
     conversation_id: conversation.id,
@@ -170,4 +196,38 @@ export async function saveAgentRun(response: AnalysisResponse, conversation: Con
     duration_ms: response.meta.durationMs,
   });
   return !error;
+}
+
+export async function listAgentRuns(): Promise<AgentRunRecord[]> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return getDemoAgentRuns();
+
+  const { data, error } = await supabase
+    .from("agent_runs")
+    .select("*, customers(name, initials), conversations(subject)")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error || !data) return getDemoAgentRuns();
+  return data.map((row) => {
+    const result = row.result as AnalysisResponse["result"];
+    const trace = row.trace as AnalysisResponse["meta"]["trace"];
+    return {
+      id: row.id,
+      customer: row.customers.name,
+      initials: row.customers.initials,
+      conversation: row.conversations.subject,
+      created: formatRelativeTime(row.created_at),
+      mode: row.mode,
+      model: row.model,
+      status: row.status === "blocked" ? "blocked" : "completed",
+      riskLevel: result.riskLevel,
+      summary: result.summary,
+      durationMs: row.duration_ms,
+      toolCallCount: row.tool_call_count,
+      modelTurns: row.model_turns,
+      citationCount: result.sources.filter((source) => source.citation).length,
+      safety: trace.every((step) => step.readOnly && step.status !== "blocked") ? "passed" : "blocked",
+      trace,
+    };
+  });
 }
