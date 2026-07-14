@@ -194,7 +194,7 @@ export function ConversationAnalysis({ conversationId = 1, customerId = "cus_acm
       </section>
 
       {status === "complete" && analysis && (
-        <div className="space-y-4 page-enter">
+        <div id="message-analysis-results" className="scroll-mt-6 space-y-4 page-enter">
           <section className="rounded-xl border border-[#efccc5] bg-[#fff8f6] p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fbe4df] text-[#b84232]"><AlertTriangle className="h-5 w-5" /></span>

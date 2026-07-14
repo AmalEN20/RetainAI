@@ -44,9 +44,11 @@ export function ApprovalBoard({ initialItems }: { initialItems: ApprovalRecord[]
       if (!response.ok) throw new Error("Decision could not be saved.");
       const payload = (await response.json()) as { approval: ApprovalRecord };
       setItems((current) => current.map((candidate) => candidate.id === item.id ? payload.approval : candidate));
+      return true;
     } catch (caught) {
       setItems(previous);
       setError(caught instanceof Error ? caught.message : "Decision could not be saved.");
+      return false;
     } finally {
       setSavingId(null);
     }
@@ -54,7 +56,8 @@ export function ApprovalBoard({ initialItems }: { initialItems: ApprovalRecord[]
 
   async function decide(item: ApprovalRecord, status: ApprovalStatus) {
     setEditingId(null);
-    await persist(item, { status });
+    const saved = await persist(item, { status });
+    if (saved) window.dispatchEvent(new Event(status === "pending" ? "retainai:approval-reopened" : "retainai:approval-reviewed"));
   }
 
   function startEditing(item: ApprovalRecord) {
