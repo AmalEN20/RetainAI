@@ -117,7 +117,7 @@ export function DemoGuide() {
       setApprovalReviewed(false);
       setExplanationPage(0);
       setOpen(true);
-      setMobileExpanded(true);
+      setMobileExpanded(!isMobile);
       router.replace("/case-study");
     } finally { setBusy(false); }
   }
@@ -170,7 +170,7 @@ export function DemoGuide() {
       return;
     }
     if (snapshot && !mobileStateInitialized.current) {
-      setMobileExpanded(step < 5);
+      setMobileExpanded(false);
       mobileStateInitialized.current = true;
     }
   }, [isMobile, snapshot, step]);
@@ -211,8 +211,10 @@ export function DemoGuide() {
     return <button onClick={() => setOpen(true)} className="demo-guide-launcher fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#177553] px-4 py-3 text-xs font-bold text-white shadow-xl"><Sparkles className="h-4 w-4" /> Demo assistant <ChevronDown className="h-4 w-4 rotate-180" /></button>;
   }
 
-  const mobileHint = step < 5
-    ? "Continue demo setup"
+  const mobileHint = step === 0
+    ? "Try the interactive demo"
+    : step < 5
+      ? "Continue demo setup"
     : step === 5
       ? pathname === "/customers"
         ? "Next · Open the Inbox"
