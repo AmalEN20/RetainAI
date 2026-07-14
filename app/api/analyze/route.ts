@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   }
 
   const conversation = await getConversationById(parsed.data.conversationId);
-  if (!conversation || conversation.id !== 1 || conversation.customerId !== "cus_acme_001") {
+  if (!conversation) {
     return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
   }
   const requestedMode = process.env.AI_MODE === "openai" ? "openai" : "mock";

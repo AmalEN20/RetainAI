@@ -6,7 +6,7 @@ RetainAI is a portfolio-grade SaaS product that helps customer success teams ide
 
 [Explore the live case study](https://retainai-copilot.amalai.chatgpt.site/case-study) · [Run the flagship workflow](https://retainai-copilot.amalai.chatgpt.site/inbox) · [Inspect the evaluation report](docs/EVALUATION_REPORT.md)
 
-This repository contains a polished SaaS shell and an end-to-end customer-risk workflow powered by a validated tool-calling agent. It runs in a deterministic replay mode with a demo repository by default, so the public portfolio demo requires no API key, database, or paid service. OpenAI and Supabase can be enabled independently.
+This repository contains a polished SaaS shell and an end-to-end customer-risk workflow powered by a validated tool-calling agent. The public experience is an anonymous interactive sandbox: no registration is required, every visitor receives an isolated temporary workspace, and the whole scenario can be reset and replayed.
 
 ## Product preview
 
@@ -19,6 +19,11 @@ This repository contains a polished SaaS shell and an end-to-end customer-risk w
 ## What is included
 
 - Dashboard with portfolio metrics, prioritized risk, and copilot activity.
+- Guided eight-step demo assistant with no sign-up or account creation.
+- Anonymous cookie-based workspaces persisted in Cloudflare D1.
+- Company setup and a choice of curated GitHub, Stripe, or Google Workspace documentation packs.
+- Server-side generation of 12 fictional customers with varied business cases.
+- A complete `Reset demo` action that clears customers, messages, approvals, and progress.
 - Customers workspace with health scores, usage trends, and renewal signals.
 - Inbox centered on the core cancellation-risk demo scenario.
 - Approvals queue showing a human-in-the-loop safety model.
@@ -71,6 +76,9 @@ flowchart LR
     H --> I[Human approval queue]
     B --> J[Agent run trace]
     J --> K[Deterministic evals]
+    L[Anonymous demo session] --> M[Cloudflare D1]
+    M --> A
+    I --> M
 ```
 
 ## Tech stack
@@ -83,6 +91,7 @@ flowchart LR
 - OpenAI JavaScript SDK and Responses API
 - Zod for runtime request and model-output validation
 - Supabase JavaScript SDK with a server-only repository adapter
+- Cloudflare D1 for isolated, resettable public demo sessions
 - Vinext/Vite development and build runtime
 
 ## Run locally
@@ -99,7 +108,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-The default `AI_MODE=mock` is free and deterministic. To enable live analysis:
+Local development creates the D1 demo schema automatically. The default `AI_MODE=mock` is free and deterministic. To enable live analysis:
 
 ```bash
 AI_MODE=openai
@@ -121,7 +130,7 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
-The service-role key is read only by server code. Row Level Security is enabled for every table and no database key reaches the browser. Without these variables, RetainAI uses its safe demo repository. Demo writes survive navigation while the local server runs and reset when that process restarts.
+The service-role key is read only by server code. Row Level Security is enabled for every table and no database key reaches the browser. Supabase remains an optional adapter for a future authenticated product mode. The public portfolio flow does not require authentication and uses its isolated D1 demo workspace instead.
 
 ## Quality checks
 
@@ -146,6 +155,7 @@ npm run build
 ```text
 app/
   api/analyze/        Validated analysis endpoint
+  api/demo/           Anonymous workspace, generation, progress, and reset endpoints
   api/knowledge/      Ranked retrieval endpoint
   approvals/          Approvals route
   case-study/         Recruiter-facing engineering story
@@ -158,6 +168,7 @@ app/
   page.tsx            Dashboard route
 components/
   approvals/          Interactive human-review queue
+  demo/               Guided public demo assistant
   inbox/              Analysis execution and result UI
   ui/                 Reusable UI primitives
   app-shell.tsx       Sidebar, header, and mobile navigation
@@ -170,17 +181,20 @@ docs/
 lib/
   analysis/           Schemas, validated tool registry, replay result, agent loop
   data/               Supabase client, repository boundary, shared data types
+  demo/               Anonymous session store, D1 adapter, and customer-case generator
   knowledge/          Curated documents and deterministic retrieval engine
   mock-data.ts        Typed portfolio demo data
   utils.ts            Shared class-name helper
 supabase/
   migrations/         Versioned database schema
   seed.sql            Idempotent portfolio dataset
+drizzle/
+  0001_anonymous_demo.sql  D1 schema for temporary public workspaces
 ```
 
 ## Core portfolio story
 
-The flagship demo begins with a customer email: “We are thinking about canceling.” The live agent receives only the message and identifiers, selects the customer evidence it needs through read-only tools, retrieves approved policy chunks with citations, generates a grounded retention plan, drafts a response, then places every proposed side effect in the approvals queue.
+The flagship demo starts without an account. A visitor creates a sample company, chooses a documentation pack, generates 12 varied customer cases, and then opens a customer email: “We are thinking about canceling.” The agent receives only the message and identifiers, selects the evidence it needs through read-only tools, retrieves approved policy chunks with citations, generates a grounded retention plan, drafts a response, then places every proposed side effect in the visitor's isolated approvals queue.
 
 The workflow is functional end to end. Every tool name and argument is validated before execution, model output must satisfy a strict Zod contract, and the loop stops after six turns. Knowledge retrieval uses a deterministic ranked index in the zero-cost demo and returns exact chunk IDs and citations. Agent runs and human decisions persist in Supabase when configured.
 
@@ -188,9 +202,9 @@ The same contracts are continuously checked by a deterministic evaluation harnes
 
 ## Roadmap
 
-1. Add live-model evals with token, cost, and latency budgets.
-2. Move knowledge chunks to Supabase pgvector and add optional embedding search.
-3. Add an approval audit-log timeline and one real-world integration.
+1. Connect each selected public documentation pack to its own retrieval index and source links.
+2. Add live-model customer generation with strict schemas, rate limits, and a deterministic fallback.
+3. Add live-model evals with token, cost, and latency budgets.
 
 ## Portfolio deployment strategy
 

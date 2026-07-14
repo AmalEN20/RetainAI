@@ -22,7 +22,7 @@ When enough evidence is available, return the requested structured result.`;
 
 type AgentRunInput = {
   conversationId: number;
-  customerId: "cus_acme_001";
+  customerId: string;
   subject: string;
   message: string;
 };

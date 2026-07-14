@@ -21,7 +21,7 @@ export default async function CustomersPage() {
       </section>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[{label:"Total customers",value:String(customers.length),sub:"Connected portfolio"},{label:"Healthy",value:String(healthy),sub:`${Math.round((healthy / customers.length) * 100)}% of portfolio`},{label:"At risk",value:String(atRisk),sub:`${customers.filter((customer) => customer.risk === "High").length} high priority`},{label:"Renewing soon",value:String(renewingSoon),sub:"Next 30 days"}].map((item) => <Card key={item.label} className="px-4 py-3.5"><p className="text-[11px] font-semibold text-[#7b867f]">{item.label}</p><p className="mt-2 text-2xl font-bold tracking-[-0.04em]">{item.value}</p><p className="mt-1 text-[10px] text-[#929b95]">{item.sub}</p></Card>)}
+        {[{label:"Total customers",value:String(customers.length),sub:"Connected portfolio"},{label:"Healthy",value:String(healthy),sub:`${customers.length ? Math.round((healthy / customers.length) * 100) : 0}% of portfolio`},{label:"At risk",value:String(atRisk),sub:`${customers.filter((customer) => customer.risk === "High").length} high priority`},{label:"Renewing soon",value:String(renewingSoon),sub:"Next 30 days"}].map((item) => <Card key={item.label} className="px-4 py-3.5"><p className="text-[11px] font-semibold text-[#7b867f]">{item.label}</p><p className="mt-2 text-2xl font-bold tracking-[-0.04em]">{item.value}</p><p className="mt-1 text-[10px] text-[#929b95]">{item.sub}</p></Card>)}
       </section>
 
       <Card className="overflow-hidden">

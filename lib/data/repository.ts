@@ -3,6 +3,9 @@ import type { AnalysisResponse } from "@/lib/analysis/schema";
 import type { AgentRunRecord, ApprovalRecord, ApprovalStatus, ConversationRecord, CustomerRecord } from "./types";
 import { getSupabaseAdmin } from "./supabase";
 import { demoAgentRuns } from "./demo-runs";
+import { readDemoSessionId } from "@/lib/demo/session";
+import { getDemoSnapshot } from "@/lib/demo/store";
+import { createDemoApproval, listDemoApprovals, updateDemoApproval } from "@/lib/demo/store";
 
 const demoState = globalThis as typeof globalThis & { retainAiApprovals?: ApprovalRecord[]; retainAiAgentRuns?: AgentRunRecord[] };
 
@@ -25,6 +28,8 @@ function formatRelativeTime(value: string) {
 }
 
 export async function listCustomers(): Promise<CustomerRecord[]> {
+  const demoSessionId = await readDemoSessionId();
+  if (demoSessionId) return (await getDemoSnapshot(demoSessionId)).customers;
   const supabase = getSupabaseAdmin();
   if (!supabase) return demoCustomers;
 
@@ -47,6 +52,8 @@ export async function listCustomers(): Promise<CustomerRecord[]> {
 }
 
 export async function listConversations(): Promise<ConversationRecord[]> {
+  const demoSessionId = await readDemoSessionId();
+  if (demoSessionId) return (await getDemoSnapshot(demoSessionId)).conversations;
   const supabase = getSupabaseAdmin();
   if (!supabase) return demoConversations;
 
@@ -77,6 +84,8 @@ export async function getConversationById(id: number) {
 }
 
 export async function listApprovals(): Promise<ApprovalRecord[]> {
+  const demoSessionId = await readDemoSessionId();
+  if (demoSessionId) return listDemoApprovals(demoSessionId);
   const supabase = getSupabaseAdmin();
   if (!supabase) return getDemoApprovals();
 
@@ -112,6 +121,8 @@ export async function createApproval(input: NewApproval): Promise<ApprovalRecord
     created: "Just now",
     status: "pending",
   };
+  const demoSessionId = await readDemoSessionId();
+  if (demoSessionId) return createDemoApproval(demoSessionId, record);
   const supabase = getSupabaseAdmin();
   if (!supabase) {
     getDemoApprovals().unshift(record);
@@ -141,6 +152,8 @@ export async function createApproval(input: NewApproval): Promise<ApprovalRecord
 }
 
 export async function updateApproval(id: string, patch: { status?: ApprovalStatus; body?: string }) {
+  const demoSessionId = await readDemoSessionId();
+  if (demoSessionId) return updateDemoApproval(demoSessionId, id, patch);
   const supabase = getSupabaseAdmin();
   if (!supabase) {
     const approval = getDemoApprovals().find((item) => item.id === id);

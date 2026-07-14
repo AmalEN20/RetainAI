@@ -1,12 +1,14 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { setPlatformEnv } from "../lib/platform-env";
 
 interface AssetFetcher {
   fetch(request: Request): Promise<Response>;
 }
 
 interface Env {
+  DB?: import("../lib/platform-env").D1Database;
   ASSETS: AssetFetcher;
   IMAGES: {
     input(stream: ReadableStream): {
@@ -30,6 +32,7 @@ interface ExecutionContext {
 
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    setPlatformEnv(env);
     const url = new URL(request.url);
 
     if (url.pathname === "/_vinext/image") {

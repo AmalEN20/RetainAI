@@ -5,7 +5,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { recentActivity } from "@/lib/mock-data";
 import { listApprovals, listConversations, listCustomers } from "@/lib/data/repository";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -20,6 +19,12 @@ const toneClasses = {
 export default async function DashboardPage() {
   const [customers, conversations, approvals] = await Promise.all([listCustomers(), listConversations(), listApprovals()]);
   const atRisk = customers.filter((customer) => customer.risk !== "Low").slice(0, 4);
+  const activity = customers.slice(0, 4).map((customer) => ({
+    title: customer.risk === "High" ? "Risk signal detected" : customer.change > 0 ? "Positive usage signal" : "Health score calculated",
+    customer: customer.name,
+    time: customer.activity,
+    tone: customer.risk === "High" ? "red" : customer.risk === "Medium" ? "amber" : "green",
+  }));
   const stats = [
     { label: "Customers", value: String(customers.length), detail: "Connected portfolio", icon: Users, tone: "green" },
     { label: "At risk", value: String(customers.filter((customer) => customer.risk !== "Low").length), detail: `${customers.filter((customer) => customer.risk === "High").length} need attention`, icon: TrendingDown, tone: "red" },
@@ -32,8 +37,8 @@ export default async function DashboardPage() {
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="mb-1 text-sm font-medium text-[#728078]">Monday, July 13</p>
-          <h1 className="text-2xl font-bold tracking-[-0.03em] text-[#17221c] md:text-[28px]">Good morning, Amal</h1>
-          <p className="mt-1.5 text-sm text-[#748078]">Here is what needs your attention today.</p>
+          <h1 className="text-2xl font-bold tracking-[-0.03em] text-[#17221c] md:text-[28px]">Welcome to RetainAI</h1>
+          <p className="mt-1.5 text-sm text-[#748078]">{customers.length ? "Here is what needs your attention today." : "Follow the demo assistant to build your temporary workspace."}</p>
         </div>
         <Button asChild><Link href="/inbox"><Sparkles className="h-4 w-4" /> Review AI insights</Link></Button>
       </section>
@@ -81,14 +86,14 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader><div><h2 className="text-sm font-bold">Copilot activity</h2><p className="mt-1 text-xs text-[#7c8780]">Latest signals and actions</p></div><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#e8f6ef] text-[#177553]"><Sparkles className="h-4 w-4" /></span></CardHeader>
           <CardContent className="space-y-1 py-3">
-            {recentActivity.map((item, index) => (
+            {activity.map((item, index) => (
               <div key={item.title} className="relative flex gap-3 py-3">
-                {index < recentActivity.length - 1 && <span className="absolute left-[7px] top-8 h-[28px] w-px bg-[#e3e7e2]" />}
+                {index < activity.length - 1 && <span className="absolute left-[7px] top-8 h-[28px] w-px bg-[#e3e7e2]" />}
                 <span className={`mt-1.5 h-3.5 w-3.5 shrink-0 rounded-full border-[3px] border-white ring-1 ${item.tone === "red" ? "bg-[#d65c4a] ring-[#edc7c0]" : item.tone === "green" ? "bg-[#42a978] ring-[#bee2d0]" : item.tone === "amber" ? "bg-[#d8a33a] ring-[#eddcaf]" : "bg-[#5d82b7] ring-[#cbd8ea]"}`} />
                 <div className="min-w-0"><p className="text-xs font-semibold text-[#2d3832]">{item.title}</p><p className="mt-1 text-[10px] text-[#8a948e]">{item.customer} · {item.time}</p></div>
               </div>
             ))}
-            <div className="mt-2 flex items-center gap-2 rounded-lg bg-[#eef7f2] px-3 py-2.5 text-[11px] font-medium text-[#32654f]"><CheckCircle2 className="h-4 w-4 text-[#20865d]" /> All customer data synced</div>
+            <div className="mt-2 flex items-center gap-2 rounded-lg bg-[#eef7f2] px-3 py-2.5 text-[11px] font-medium text-[#32654f]"><CheckCircle2 className="h-4 w-4 text-[#20865d]" /> {customers.length ? "Anonymous demo data saved" : "Ready to create your demo portfolio"}</div>
           </CardContent>
         </Card>
       </section>

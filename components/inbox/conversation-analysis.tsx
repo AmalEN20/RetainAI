@@ -55,7 +55,7 @@ function traceLabel(tool: string | null, fallback: string) {
   return fallback;
 }
 
-export function ConversationAnalysis() {
+export function ConversationAnalysis({ conversationId = 1, customerId = "cus_acme_001", customer = "Acme Inc.", initials = "AC", contact = "Sarah Chen" }: { conversationId?: number; customerId?: string; customer?: string; initials?: string; contact?: string }) {
   const [status, setStatus] = useState<"idle" | "analyzing" | "complete" | "error">("idle");
   const [visibleSteps, setVisibleSteps] = useState(0);
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
@@ -77,7 +77,7 @@ export function ConversationAnalysis() {
       const request = fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId: 1 }),
+        body: JSON.stringify({ conversationId }),
       });
 
       const animation = (async () => {
@@ -95,6 +95,7 @@ export function ConversationAnalysis() {
       setVisibleSteps(payload.meta.trace.length);
       setDraftBody(payload.result.emailDraft.body);
       setStatus("complete");
+      window.dispatchEvent(new Event("retainai:analysis-complete"));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unexpected analysis error.");
       setStatus("error");
@@ -110,13 +111,13 @@ export function ConversationAnalysis() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerId: "cus_acme_001",
-          customer: "Acme Inc.",
-          initials: "AC",
+          customerId,
+          customer,
+          initials,
           action: "Send AI-drafted retention email",
           description: `Subject: ${analysis.result.emailDraft.subject}`,
           risk: "High",
-          owner: "Sarah Chen",
+          owner: contact,
           subject: analysis.result.emailDraft.subject,
           body: draftBody,
           runId: analysis.meta.runId,
@@ -124,6 +125,7 @@ export function ConversationAnalysis() {
       });
       if (!response.ok) throw new Error("The approval could not be saved.");
       setAddedToApprovals(true);
+      window.dispatchEvent(new Event("retainai:approval-created"));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The approval could not be saved.");
     } finally {
@@ -207,7 +209,7 @@ export function ConversationAnalysis() {
           </div>
 
           <section className="overflow-hidden rounded-xl border bg-white">
-            <div className="flex flex-wrap items-center gap-3 border-b bg-[#fafbf8] px-5 py-3.5"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#e9f2ff] text-[#4b72a9]"><Mail className="h-4 w-4" /></span><div className="flex-1"><h3 className="text-xs font-bold">Email draft</h3><p className="mt-0.5 text-[10px] text-[#87918b]">Prepared for Sarah Chen · requires approval</p></div><Button variant="ghost" size="sm" onClick={() => setEditing(!editing)}><Pencil className="h-3.5 w-3.5" /> {editing ? "Done editing" : "Edit"}</Button><Button variant="ghost" size="sm" onClick={copyDraft}>{copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />} {copied ? "Copied" : "Copy"}</Button></div>
+            <div className="flex flex-wrap items-center gap-3 border-b bg-[#fafbf8] px-5 py-3.5"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#e9f2ff] text-[#4b72a9]"><Mail className="h-4 w-4" /></span><div className="flex-1"><h3 className="text-xs font-bold">Email draft</h3><p className="mt-0.5 text-[10px] text-[#87918b]">Prepared for {contact} · requires approval</p></div><Button variant="ghost" size="sm" onClick={() => setEditing(!editing)}><Pencil className="h-3.5 w-3.5" /> {editing ? "Done editing" : "Edit"}</Button><Button variant="ghost" size="sm" onClick={copyDraft}>{copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />} {copied ? "Copied" : "Copy"}</Button></div>
             <div className="p-5"><div className="mb-4 border-b pb-3"><span className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#9aa29d]">Subject</span><p className="mt-1 text-xs font-semibold">{analysis.result.emailDraft.subject}</p></div>{editing ? <textarea value={draftBody} onChange={(event) => setDraftBody(event.target.value)} className="min-h-[260px] w-full resize-y rounded-lg border bg-[#fafbf8] p-3 text-xs leading-5 outline-none focus:ring-2 focus:ring-[#177553]/20" aria-label="Edit email draft" /> : <p className="whitespace-pre-line text-xs leading-5 text-[#4e5a53]">{draftBody}</p>}</div>
             <div className="flex flex-col gap-3 border-t bg-[#fafbf8] px-5 py-4 sm:flex-row sm:items-center"><div className="flex flex-1 items-center gap-2 text-[10px] text-[#77847c]"><ShieldCheck className="h-4 w-4 text-[#177553]" /> Sending remains disabled until a human approves this action.</div>{addedToApprovals ? <Button asChild><Link href="/approvals"><CheckCircle2 className="h-4 w-4" /> View in approvals <ArrowRight className="h-3.5 w-3.5" /></Link></Button> : <Button onClick={addToApprovals} disabled={addingApproval}>{addingApproval ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ClipboardCheck className="h-4 w-4" />} {addingApproval ? "Saving…" : "Add to approvals"}</Button>}</div>
             {error && <p className="border-t bg-[#fff5f2] px-5 py-3 text-[10px] font-medium text-[#a74739]">{error}</p>}

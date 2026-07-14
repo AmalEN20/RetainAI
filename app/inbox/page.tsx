@@ -12,6 +12,14 @@ export const metadata: Metadata = { title: "Inbox" };
 export default async function InboxPage() {
   const conversations = await listConversations();
   const selected = conversations[0];
+  if (!selected) {
+    return (
+      <div className="page-enter space-y-6">
+        <section><p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#728078]"><Inbox className="h-4 w-4" /> Unified inbox</p><h1 className="text-2xl font-bold tracking-[-0.03em] md:text-[28px]">Inbox</h1><p className="mt-1.5 text-sm text-[#748078]">Review customer messages and prepare the next best action.</p></section>
+        <Card className="flex min-h-[480px] items-center justify-center p-8 text-center"><div><span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#e9f6ef] text-[#177553]"><Inbox className="h-5 w-5" /></span><h2 className="mt-4 text-sm font-bold">Your demo inbox is empty</h2><p className="mt-2 max-w-sm text-xs leading-5 text-[#748078]">Use the demo assistant to create a company and generate customer cases.</p></div></Card>
+      </div>
+    );
+  }
   return (
     <div className="page-enter space-y-6">
       <section><p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#728078]"><Inbox className="h-4 w-4" /> Unified inbox</p><h1 className="text-2xl font-bold tracking-[-0.03em] md:text-[28px]">Inbox</h1><p className="mt-1.5 text-sm text-[#748078]">Review customer messages and prepare the next best action.</p></section>
@@ -34,8 +42,8 @@ export default async function InboxPage() {
           <div className="flex flex-wrap items-center gap-3 border-b bg-white px-5 py-4"><Avatar initials={selected.initials} /><div><h2 className="text-sm font-bold">{selected.subject}</h2><p className="mt-0.5 text-[10px] text-[#87918b]">{selected.contact} at {selected.customer} · 9:42 AM</p></div><div className="ml-auto flex gap-2"><Badge tone="high">High risk</Badge><Button variant="outline" size="sm"><Clock3 className="h-3.5 w-3.5" /> Snooze</Button></div></div>
           <div className="flex-1 p-5 md:p-7">
             <div className="mx-auto max-w-3xl space-y-5">
-              <div className="rounded-xl border bg-white p-5 shadow-sm"><div className="mb-4 flex items-center gap-3"><Avatar initials="SC" /><div><p className="text-xs font-bold">Sarah Chen</p><p className="text-[10px] text-[#89938d]">sarah@acme.co · to Customer Success</p></div></div><p className="text-sm leading-6 text-[#465149]">Hi team,<br /><br />We have not been getting enough value from the product lately. Usage across our team is down, and the billing issue from last month is still unresolved.<br /><br />We are thinking about canceling before our next renewal. Can someone help us understand our options?<br /><br />Sarah</p></div>
-              <ConversationAnalysis />
+              <div className="rounded-xl border bg-white p-5 shadow-sm"><div className="mb-4 flex items-center gap-3"><Avatar initials={selected.initials} /><div><p className="text-xs font-bold">{selected.contact}</p><p className="text-[10px] text-[#89938d]">Customer contact · to Customer Success</p></div></div><p className="whitespace-pre-line text-sm leading-6 text-[#465149]">Hi team,{"\n\n"}{selected.body}{"\n\n"}{selected.contact.split(" ")[0]}</p></div>
+              <ConversationAnalysis conversationId={selected.id} customerId={selected.customerId} customer={selected.customer} initials={selected.initials} contact={selected.contact} />
             </div>
           </div>
         </section>
