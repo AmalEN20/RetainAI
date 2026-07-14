@@ -36,3 +36,107 @@ button { cursor: pointer; }
 }
 
 .page-enter { animation: enter-up 420ms ease-out both; }
+
+/* Interactive demo tour — motion language mirrors the portfolio's soft spring easing. */
+.demo-guide-card {
+  isolation: isolate;
+  animation: demo-guide-card-in .55s cubic-bezier(.16, 1, .3, 1) both;
+  transition: box-shadow .35s ease;
+}
+.demo-guide-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 190px;
+  height: 190px;
+  right: -90px;
+  top: -105px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(72,184,137,.18), rgba(72,184,137,0) 68%);
+  pointer-events: none;
+}
+.demo-guide-content { animation: demo-guide-content-in .56s cubic-bezier(.16, 1, .3, 1) both; }
+.demo-guide-content input,
+.demo-guide-content textarea,
+.demo-guide-content button { transition: transform .3s cubic-bezier(.16, 1, .3, 1), border-color .25s ease, background-color .25s ease, box-shadow .25s ease; }
+.demo-guide-content button:hover:not(:disabled) { transform: translateY(-2px); }
+.demo-guide-primary:not(:disabled) { box-shadow: 0 6px 18px rgba(23,117,83,.16); }
+.demo-guide-progress { transform-origin: left; transition: width .72s cubic-bezier(.16, 1, .3, 1); }
+.demo-guide-spark { animation: demo-guide-spark 4.5s ease-in-out infinite; }
+.demo-guide-launcher { animation: demo-guide-launcher-in .55s cubic-bezier(.16, 1, .3, 1) both; }
+
+.demo-step-overlay { animation: demo-step-overlay-in .32s ease-out both; }
+.demo-step-modal { animation: demo-step-modal-in .72s cubic-bezier(.16, 1, .3, 1) both; }
+.demo-step-modal h2,
+.demo-step-modal p,
+.demo-step-modal button { animation: demo-step-copy-in .55s cubic-bezier(.16, 1, .3, 1) both; }
+.demo-step-modal h2 { animation-delay: .08s; }
+.demo-step-modal p { animation-delay: .13s; }
+.demo-step-modal button { animation-delay: .18s; }
+.demo-step-glow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  right: -190px;
+  top: -230px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(72,184,137,.3), rgba(72,184,137,.08) 38%, transparent 70%);
+  animation: demo-step-glow-drift 5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.demo-step-check { animation: demo-step-check-in .7s cubic-bezier(.16, 1, .3, 1) .12s both; }
+
+@keyframes demo-guide-card-in {
+  from { opacity: 0; transform: translate3d(0, 24px, 0) scale(.96); filter: blur(5px); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+}
+@keyframes demo-guide-content-in {
+  from { opacity: 0; transform: translate3d(0, 15px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes demo-guide-spark {
+  0%, 100% { transform: rotate(-2deg) scale(.98); box-shadow: 0 0 0 rgba(72,184,137,0); }
+  50% { transform: rotate(2deg) scale(1.03); box-shadow: 0 0 16px rgba(72,184,137,.24); }
+}
+@keyframes demo-guide-launcher-in {
+  from { opacity: 0; transform: translateY(14px) scale(.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes demo-step-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes demo-step-modal-in {
+  from { opacity: 0; transform: translate3d(0, 28px, 0) scale(.92); filter: blur(8px); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+}
+@keyframes demo-step-copy-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes demo-step-check-in {
+  from { opacity: 0; transform: rotate(-14deg) scale(.55); }
+  to { opacity: 1; transform: rotate(0) scale(1); }
+}
+@keyframes demo-step-glow-drift {
+  from { transform: translate3d(-10px, -6px, 0) scale(.92); }
+  to { transform: translate3d(14px, 12px, 0) scale(1.1); }
+}
+@media (max-width: 767px) {
+  .demo-guide-card { left: 1rem !important; right: 1rem !important; top: auto !important; bottom: 1rem !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-guide-card,
+  .demo-guide-content,
+  .demo-guide-primary,
+  .demo-guide-spark,
+  .demo-guide-launcher,
+  .demo-step-overlay,
+  .demo-step-modal,
+  .demo-step-modal h2,
+  .demo-step-modal p,
+  .demo-step-modal button,
+  .demo-step-glow,
+  .demo-step-check { animation: none !important; transition-duration: .01ms !important; }
+}

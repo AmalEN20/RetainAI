@@ -34,7 +34,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="page-enter space-y-6">
-      <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <section data-demo-target="dashboard-overview" className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="mb-1 text-sm font-medium text-[#728078]">Monday, July 13</p>
           <h1 className="text-2xl font-bold tracking-[-0.03em] text-[#17221c] md:text-[28px]">Welcome to RetainAI</h1>
@@ -87,7 +87,7 @@ export default async function DashboardPage() {
           <CardHeader><div><h2 className="text-sm font-bold">Copilot activity</h2><p className="mt-1 text-xs text-[#7c8780]">Latest signals and actions</p></div><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#e8f6ef] text-[#177553]"><Sparkles className="h-4 w-4" /></span></CardHeader>
           <CardContent className="space-y-1 py-3">
             {activity.map((item, index) => (
-              <div key={item.title} className="relative flex gap-3 py-3">
+              <div key={`${item.title}-${item.customer}`} className="relative flex gap-3 py-3">
                 {index < activity.length - 1 && <span className="absolute left-[7px] top-8 h-[28px] w-px bg-[#e3e7e2]" />}
                 <span className={`mt-1.5 h-3.5 w-3.5 shrink-0 rounded-full border-[3px] border-white ring-1 ${item.tone === "red" ? "bg-[#d65c4a] ring-[#edc7c0]" : item.tone === "green" ? "bg-[#42a978] ring-[#bee2d0]" : item.tone === "amber" ? "bg-[#d8a33a] ring-[#eddcaf]" : "bg-[#5d82b7] ring-[#cbd8ea]"}`} />
                 <div className="min-w-0"><p className="text-xs font-semibold text-[#2d3832]">{item.title}</p><p className="mt-1 text-[10px] text-[#8a948e]">{item.customer} · {item.time}</p></div>

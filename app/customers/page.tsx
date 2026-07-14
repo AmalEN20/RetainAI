@@ -24,7 +24,7 @@ export default async function CustomersPage() {
         {[{label:"Total customers",value:String(customers.length),sub:"Connected portfolio"},{label:"Healthy",value:String(healthy),sub:`${customers.length ? Math.round((healthy / customers.length) * 100) : 0}% of portfolio`},{label:"At risk",value:String(atRisk),sub:`${customers.filter((customer) => customer.risk === "High").length} high priority`},{label:"Renewing soon",value:String(renewingSoon),sub:"Next 30 days"}].map((item) => <Card key={item.label} className="px-4 py-3.5"><p className="text-[11px] font-semibold text-[#7b867f]">{item.label}</p><p className="mt-2 text-2xl font-bold tracking-[-0.04em]">{item.value}</p><p className="mt-1 text-[10px] text-[#929b95]">{item.sub}</p></Card>)}
       </section>
 
-      <Card className="overflow-hidden">
+      <Card data-demo-target="customers-table" className="overflow-hidden">
         <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center">
           <div className="flex h-9 flex-1 items-center gap-2 rounded-lg border bg-[#fafbf8] px-3 sm:max-w-sm"><Search className="h-4 w-4 text-[#8b958e]" /><input className="w-full bg-transparent text-xs outline-none placeholder:text-[#a0a8a2]" placeholder="Search by company or contact…" /></div>
           <div className="ml-auto flex gap-2"><Button variant="outline" size="sm"><Filter className="h-3.5 w-3.5" /> Filter</Button><Button variant="outline" size="sm">All segments</Button></div>

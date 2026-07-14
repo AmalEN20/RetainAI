@@ -54,6 +54,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <Link
               key={item.href}
               href={item.href}
+              data-demo-target={item.href === "/customers" ? "nav-customers" : item.href === "/inbox" ? "nav-inbox" : item.href === "/approvals" ? "nav-approvals" : undefined}
               onClick={onNavigate}
               className={cn(
                 "flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",

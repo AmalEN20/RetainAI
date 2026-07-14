@@ -15,7 +15,7 @@ export default async function ApprovalsPage() {
         <div className="flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-[11px] font-semibold text-[#536259]"><ShieldCheck className="h-4 w-4 text-[#177553]" /> No action executes automatically</div>
       </section>
 
-      <ApprovalBoard initialItems={approvals} />
+      <div data-demo-target="approvals-workspace"><ApprovalBoard initialItems={approvals} /></div>
 
       <Card className="border-dashed bg-transparent p-5 text-center"><ShieldCheck className="mx-auto h-6 w-6 text-[#8da098]" /><h2 className="mt-2 text-xs font-bold">Designed for safe automation</h2><p className="mx-auto mt-1 max-w-xl text-[11px] leading-5 text-[#7f8983]">RetainAI prepares customer-facing actions but always requires a human decision. Each run keeps safe summaries of its context, sources, edits, and final approval state.</p></Card>
     </div>
