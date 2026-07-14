@@ -115,6 +115,7 @@ export function DemoGuide() {
     const analyzed = () => {
       setAnalysisDone(true);
       setExplanationPage(0);
+      setOpen(true);
       setTransitionStage("analysis");
     };
     const approved = () => void update({ guideStep: 6 });
@@ -265,7 +266,7 @@ export function DemoGuide() {
       <header className="flex items-center gap-3 bg-[#132019] px-4 py-3.5 text-white">
         <span className="demo-guide-spark flex h-8 w-8 items-center justify-center rounded-lg bg-[#48b889] text-[#102018]"><Sparkles className="h-4 w-4" /></span>
         <div className="flex-1"><p className="text-xs font-bold">RetainAI demo assistant</p><p className="mt-0.5 text-[10px] text-[#aebeb5]">Step {Math.min(step + 1, 8)} of 8 · Anonymous sandbox</p></div>
-        <button onClick={() => setOpen(false)} aria-label="Minimize demo assistant" className="rounded-md p-1 text-[#aebeb5] hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
+        <button onClick={() => setOpen(false)} aria-label="Minimize demo assistant" className="-mr-2 flex h-11 w-11 items-center justify-center rounded-lg text-[#aebeb5] hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
       </header>
       <div className="h-1 bg-[#e7ebe7]"><div className="demo-guide-progress h-full bg-[#48b889]" style={{ width: `${((step + 1) / 8) * 100}%` }} /></div>
       <div key={`${step}-${analysisDone ? "done" : "active"}`} className="demo-guide-content p-4">
@@ -283,11 +284,11 @@ export function DemoGuide() {
             <div className="mt-3 space-y-2.5">
               <label className="block">
                 <span className="mb-1 block text-[10px] font-bold text-[#53645b]">Company name</span>
-                <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="h-9 w-full rounded-lg border px-3 text-xs outline-none focus:ring-2 focus:ring-[#177553]/20" placeholder="e.g. RetainAI Labs" />
+                <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="h-11 w-full rounded-lg border px-3 text-xs outline-none focus:ring-2 focus:ring-[#177553]/20" placeholder="e.g. RetainAI Labs" />
               </label>
               <label className="block">
                 <span className="mb-1 block text-[10px] font-bold text-[#53645b]">Product the customers use</span>
-                <input value={productName} onChange={(e) => setProductName(e.target.value)} className="h-9 w-full rounded-lg border px-3 text-xs outline-none focus:ring-2 focus:ring-[#177553]/20" placeholder="e.g. Customer Success Cloud" />
+                <input value={productName} onChange={(e) => setProductName(e.target.value)} className="h-11 w-full rounded-lg border px-3 text-xs outline-none focus:ring-2 focus:ring-[#177553]/20" placeholder="e.g. Customer Success Cloud" />
               </label>
               <label className="block">
                 <span className="mb-1 block text-[10px] font-bold text-[#53645b]">Business context</span>
@@ -324,7 +325,7 @@ export function DemoGuide() {
             <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-[#758078]">Choose what to load into Knowledge Base</p>
             <div className="space-y-2">
               {docPacks.map((pack) => (
-                <button key={pack.id} disabled={busy} onClick={() => void update({ documentationPack: pack.id, guideStep: 3 })} className="flex w-full items-center gap-3 rounded-lg border p-3 text-left hover:border-[#7fb59a] hover:bg-[#f3f9f6]">
+                <button key={pack.id} disabled={busy} onClick={() => void update({ documentationPack: pack.id, guideStep: 3 })} className="flex min-h-14 w-full items-center gap-3 rounded-lg border p-3 text-left hover:border-[#7fb59a] hover:bg-[#f3f9f6]">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#eef5f1]"><BookOpenCheck className="h-4 w-4 text-[#177553]" /></span>
                   <span>
                     <span className="block text-xs font-bold">{pack.name}</span>
@@ -341,7 +342,7 @@ export function DemoGuide() {
 
         {step === 4 && <div><p className="text-sm font-bold">Customer portfolio created</p><p className="mt-2 text-xs leading-5 text-[#69756e]">You now have {snapshot.workspace.customerCount} customers and {snapshot.workspace.conversationCount} messages. Next, see how RetainAI organizes their health scores, risks, renewals, and usage changes.</p><Button className="mt-4 w-full" disabled={busy} onClick={() => void openCustomerPortfolio()}>{busy && <LoaderCircle className="h-4 w-4 animate-spin" />} Explore customer portfolio</Button></div>}
 
-        {step === 5 && <div><p className="text-sm font-bold">{analysisDone ? "Send the draft for approval" : pathname === "/customers" ? "Explore the customer portfolio" : "Analyze the first customer message"}</p><p className="mt-2 text-xs leading-5 text-[#69756e]">{analysisDone ? <>Review the evidence and email draft, then click <strong>Add to approvals</strong>. The agent cannot send it by itself.</> : pathname === "/customers" ? <>Review the customer signals on this page. When you are ready, continue to the Inbox to see how RetainAI handles a real cancellation message.</> : <>Open the cancellation message and click <strong>Analyze message</strong>. RetainAI will inspect customer signals, policy guidance, and prepare a retention response.</>}</p>{pathname !== "/inbox" && <Button className="mt-4 w-full" onClick={() => analysisDone ? router.push("/inbox") : openCustomerInbox()}>{analysisDone ? "Return to Inbox" : "Continue to customer inbox"}</Button>}</div>}
+        {step === 5 && <div><p className="text-sm font-bold">{analysisDone ? "Send the draft for approval" : pathname === "/customers" ? "Explore the customer portfolio" : "Analyze the first customer message"}</p><p className="mt-2 text-xs leading-5 text-[#69756e]">{analysisDone ? <>Review the evidence and email draft, then click <strong>Add to approvals</strong>. The agent cannot send it by itself.</> : pathname === "/customers" ? <>Review the customer signals on this page. When you are ready, continue to the Inbox to see how RetainAI handles a real cancellation message.</> : <>Open the cancellation message and click <strong>Analyze message</strong>. RetainAI will inspect customer signals, policy guidance, and prepare a retention response.</>}</p>{pathname !== "/inbox" ? <Button className="mt-4 w-full" onClick={() => analysisDone ? router.push("/inbox") : openCustomerInbox()}>{analysisDone ? "Return to Inbox" : "Continue to customer inbox"}</Button> : <Button variant="outline" className="mt-4 w-full" onClick={() => setOpen(false)}>{analysisDone ? "Show analysis and draft" : "Show message to analyze"}</Button>}</div>}
 
         {step === 6 && (
           <div>
@@ -355,7 +356,7 @@ export function DemoGuide() {
             </p>
             {approvalReviewed
               ? <Button className="mt-4 w-full" disabled={busy} onClick={() => void update({ completed: true })}>{busy && <LoaderCircle className="h-4 w-4 animate-spin" />} Finish demo</Button>
-              : pathname !== "/approvals" && <Button className="demo-guide-primary mt-4 w-full" onClick={openApprovals}><CheckSquare2 className="h-4 w-4" /> Open approvals</Button>}
+              : pathname !== "/approvals" ? <Button className="demo-guide-primary mt-4 w-full" onClick={openApprovals}><CheckSquare2 className="h-4 w-4" /> Open approvals</Button> : <Button variant="outline" className="mt-4 w-full" onClick={() => setOpen(false)}>Show approval queue</Button>}
           </div>
         )}
 

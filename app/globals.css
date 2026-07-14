@@ -17,13 +17,15 @@
 }
 
 * { border-color: var(--border); }
-html { background: var(--background); }
+html { background: var(--background); overflow-x: hidden; }
 body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: "Inter", "SF Pro Text", "Segoe UI", sans-serif;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button, input { font: inherit; }
@@ -129,7 +131,45 @@ button { cursor: pointer; }
   to { transform: translate3d(14px, 12px, 0) scale(1.1); }
 }
 @media (max-width: 767px) {
-  .demo-guide-card { left: 1rem !important; right: 1rem !important; top: auto !important; bottom: 1rem !important; }
+  .mobile-safe-top { padding-top: env(safe-area-inset-top); height: calc(4rem + env(safe-area-inset-top)); }
+  .mobile-bottom-nav { padding-bottom: env(safe-area-inset-bottom); }
+  .mobile-page-bottom { padding-bottom: calc(7.5rem + env(safe-area-inset-bottom)); }
+  .demo-guide-card {
+    left: .75rem !important;
+    right: .75rem !important;
+    top: auto !important;
+    bottom: calc(4.65rem + env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+    max-height: min(66dvh, 560px);
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+  }
+  .demo-guide-launcher {
+    right: .75rem !important;
+    bottom: calc(4.75rem + env(safe-area-inset-bottom)) !important;
+    min-height: 44px;
+  }
+  .demo-step-overlay {
+    align-items: flex-end !important;
+    padding: .5rem !important;
+    padding-bottom: calc(.5rem + env(safe-area-inset-bottom)) !important;
+  }
+  .demo-step-modal {
+    max-height: calc(100dvh - 1rem - env(safe-area-inset-bottom)) !important;
+    border-radius: 1.25rem !important;
+  }
+  .demo-step-modal > div.relative { padding: 1.125rem !important; }
+  .demo-step-modal h2 { font-size: 1.25rem !important; line-height: 1.25 !important; }
+  .demo-step-modal .mt-5.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .demo-step-modal .mt-5.grid > div { padding: .65rem; }
+  .demo-step-modal .mt-5.grid > div p:last-child { display: none; }
+  .demo-step-modal .mt-6.rounded-2xl { margin-top: 1rem; padding: .75rem; }
+  .demo-step-modal .mt-6.w-full,
+  .demo-step-modal .mt-6.flex { margin-top: 1rem; }
+}
+
+@media (hover: none) {
+  .demo-guide-content button:hover:not(:disabled) { transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

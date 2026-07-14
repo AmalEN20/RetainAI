@@ -40,7 +40,7 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold tracking-[-0.03em] text-[#17221c] md:text-[28px]">Welcome to RetainAI</h1>
           <p className="mt-1.5 text-sm text-[#748078]">{customers.length ? "Here is what needs your attention today." : "Follow the demo assistant to build your temporary workspace."}</p>
         </div>
-        <Button asChild><Link href="/inbox"><Sparkles className="h-4 w-4" /> Review AI insights</Link></Button>
+        <Button className="w-full sm:w-auto" asChild><Link href="/inbox"><Sparkles className="h-4 w-4" /> Review AI insights</Link></Button>
       </section>
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -65,7 +65,15 @@ export default async function DashboardPage() {
             <div><h2 className="text-sm font-bold">Customers needing attention</h2><p className="mt-1 text-xs text-[#7c8780]">Prioritized by health score and renewal date</p></div>
             <Button variant="ghost" size="sm" asChild><Link href="/customers">View all <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
           </CardHeader>
-          <div className="overflow-x-auto">
+          <div className="divide-y sm:hidden">
+            {atRisk.map((customer) => (
+              <article key={customer.name} className="p-4">
+                <div className="flex items-center gap-3"><Avatar initials={customer.initials} className="h-11 w-11" /><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><h3 className="truncate text-sm font-bold">{customer.name}</h3><Badge tone={customer.risk === "High" ? "high" : "medium"}>{customer.risk}</Badge></div><p className="mt-1 truncate text-[10px] text-[#8b958e]">{customer.contact}</p></div></div>
+                <div className="mt-3 grid grid-cols-3 rounded-xl bg-[#f7f8f5] p-3 text-center"><div><p className="text-[9px] uppercase text-[#929b95]">Health</p><p className="mt-1 text-sm font-bold">{customer.health}</p></div><div><p className="text-[9px] uppercase text-[#929b95]">Renewal</p><p className="mt-1 text-[11px] font-bold">{customer.renewal}</p></div><div><p className="text-[9px] uppercase text-[#929b95]">Usage</p><p className="mt-1 text-sm font-bold text-[#b74b3a]">{customer.change}%</p></div></div>
+              </article>
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto sm:block">
             <table className="w-full min-w-[640px] text-left">
               <thead><tr className="border-b bg-[#fafbf8] text-[10px] font-bold uppercase tracking-[0.08em] text-[#929b95]"><th className="px-5 py-3">Customer</th><th className="px-3 py-3">Health</th><th className="px-3 py-3">Risk</th><th className="px-3 py-3">Renewal</th><th className="px-5 py-3 text-right">Usage</th></tr></thead>
               <tbody>

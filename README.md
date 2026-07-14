@@ -41,7 +41,7 @@ This repository contains a polished SaaS shell and an end-to-end customer-risk w
 - Editable email drafts and working approve/reject decisions.
 - Optional Supabase persistence for customer context, agent runs, and approval decisions.
 - Versioned SQL migration and a realistic six-customer seed dataset.
-- Responsive sidebar and mobile navigation.
+- Purpose-built phone experience with safe-area support, bottom navigation, mobile customer cards, a compact inbox, touch-friendly approvals, and a responsive demo assistant.
 - Reusable shadcn/ui-style primitives built on Radix UI and Tailwind CSS.
 - Product and architecture documentation.
 

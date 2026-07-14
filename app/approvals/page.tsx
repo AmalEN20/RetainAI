@@ -12,7 +12,7 @@ export default async function ApprovalsPage() {
     <div className="page-enter space-y-6">
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div><p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#728078]"><CheckSquare2 className="h-4 w-4" /> Human-in-the-loop</p><h1 className="text-2xl font-bold tracking-[-0.03em] md:text-[28px]">Approvals</h1><p className="mt-1.5 text-sm text-[#748078]">Review AI-proposed actions before anything reaches a customer.</p></div>
-        <div className="flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-[11px] font-semibold text-[#536259]"><ShieldCheck className="h-4 w-4 text-[#177553]" /> No action executes automatically</div>
+        <div className="flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-[11px] font-semibold text-[#536259]"><ShieldCheck className="h-4 w-4 shrink-0 text-[#177553]" /> No action executes automatically</div>
       </section>
 
       <div data-demo-target="approvals-workspace"><ApprovalBoard initialItems={approvals} /></div>

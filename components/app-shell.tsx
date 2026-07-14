@@ -12,7 +12,7 @@ import {
   ChevronDown,
   Inbox,
   LayoutDashboard,
-  Menu,
+  MoreHorizontal,
   Search,
   Sparkles,
   Users,
@@ -30,6 +30,13 @@ const navigation = [
   { name: "Inbox", href: "/inbox", icon: Inbox },
   { name: "Knowledge", href: "/knowledge", icon: BookOpenCheck },
   { name: "Runs & Evals", href: "/runs", icon: Activity },
+  { name: "Approvals", href: "/approvals", icon: CheckSquare2 },
+];
+
+const mobileNavigation = [
+  { name: "Home", href: "/", icon: LayoutDashboard },
+  { name: "Customers", href: "/customers", icon: Users },
+  { name: "Inbox", href: "/inbox", icon: Inbox },
   { name: "Approvals", href: "/approvals", icon: CheckSquare2 },
 ];
 
@@ -92,6 +99,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <div className="min-h-screen bg-[#f4f5f0]">
@@ -100,7 +108,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button className="absolute inset-0 bg-black/35" onClick={() => setMobileOpen(false)} aria-label="Close navigation" />
-          <div className="relative h-full w-[244px]">
+          <div className="relative h-full w-[min(86vw,320px)]">
             <Sidebar onNavigate={() => setMobileOpen(false)} />
             <Button variant="ghost" size="icon" className="absolute right-[-48px] top-3 text-white hover:bg-white/10 hover:text-white" onClick={() => setMobileOpen(false)} aria-label="Close menu"><X /></Button>
           </div>
@@ -108,8 +116,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="lg:pl-[244px]">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-white/90 px-4 backdrop-blur md:px-7">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu"><Menu /></Button>
+        <header className="mobile-safe-top sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-white/90 px-4 backdrop-blur md:px-7">
+          <Link href="/" className="flex min-h-11 items-center gap-2 lg:hidden" aria-label="RetainAI home">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#177553] text-white"><Sparkles className="h-4 w-4" /></span>
+            <span className="text-sm font-bold tracking-[-0.02em]">RetainAI</span>
+          </Link>
           <div className="hidden max-w-[340px] flex-1 items-center gap-2 rounded-lg border bg-[#f8f9f6] px-3 text-[#7a847d] md:flex">
             <Search className="h-4 w-4" />
             <input className="h-9 w-full bg-transparent text-sm outline-none placeholder:text-[#98a098]" placeholder="Search customers, conversations…" aria-label="Search" />
@@ -123,8 +134,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Button>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-[1500px] px-4 py-6 md:px-7 md:py-7">{children}</main>
+        <main className="mobile-page-bottom mx-auto w-full min-w-0 max-w-[1500px] px-4 py-5 md:px-7 md:py-7">{children}</main>
       </div>
+      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 backdrop-blur-lg lg:hidden" aria-label="Mobile navigation">
+        <div className="mx-auto grid max-w-lg grid-cols-5 px-1 pt-1.5">
+          {mobileNavigation.map((item) => {
+            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                data-demo-target={item.href === "/customers" ? "nav-customers" : item.href === "/inbox" ? "nav-inbox" : item.href === "/approvals" ? "nav-approvals" : undefined}
+                className={cn("flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold", active ? "text-[#177553]" : "text-[#738078]")}
+              >
+                <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+          <button onClick={() => setMobileOpen(true)} className="flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold text-[#738078]" aria-label="Open more navigation">
+            <MoreHorizontal className="h-5 w-5" />
+            <span>More</span>
+          </button>
+        </div>
+      </nav>
       <DemoGuide />
     </div>
   );
