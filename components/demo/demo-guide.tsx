@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Activity, BookOpenCheck, Building2, Check, CheckSquare2, ChevronDown, Database, LayoutDashboard, LoaderCircle, RefreshCw, Sparkles, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,9 @@ export function DemoGuide() {
   const pathname = usePathname();
   const [snapshot, setSnapshot] = useState<DemoSnapshot | null>(null);
   const [open, setOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState(true);
+  const mobileStateInitialized = useRef(false);
   const [busy, setBusy] = useState(false);
   const [analysisDone, setAnalysisDone] = useState(false);
   const [approvalReviewed, setApprovalReviewed] = useState(false);
@@ -35,6 +38,14 @@ export function DemoGuide() {
   const [companyName, setCompanyName] = useState("RetainAI Labs");
   const [productName, setProductName] = useState("Customer Success Cloud");
   const [companyDescription, setCompanyDescription] = useState("A B2B SaaS platform that helps customer success teams reduce churn and improve adoption.");
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const sync = () => setIsMobile(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -73,18 +84,26 @@ export function DemoGuide() {
 
   async function openCustomerPortfolio() {
     await update({ guideStep: 5 });
+    setMobileExpanded(false);
     setPendingIntro("customers");
     router.push("/customers");
   }
 
   function openCustomerInbox() {
+    setMobileExpanded(false);
     setPendingIntro("inbox");
     router.push("/inbox");
   }
 
   function openApprovals() {
+    setMobileExpanded(false);
     setPendingIntro("approvals");
     router.push("/approvals");
+  }
+
+  function dismissAssistant() {
+    if (isMobile) setMobileExpanded(false);
+    else setOpen(false);
   }
 
   async function reset() {
@@ -98,12 +117,14 @@ export function DemoGuide() {
       setApprovalReviewed(false);
       setExplanationPage(0);
       setOpen(true);
+      setMobileExpanded(true);
       router.replace("/case-study");
     } finally { setBusy(false); }
   }
 
   function viewAnalysis() {
     setTransitionStage(null);
+    setMobileExpanded(false);
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         document.getElementById("message-analysis-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -116,10 +137,18 @@ export function DemoGuide() {
       setAnalysisDone(true);
       setExplanationPage(0);
       setOpen(true);
+      setMobileExpanded(false);
       setTransitionStage("analysis");
     };
-    const approved = () => void update({ guideStep: 6 });
-    const approvalReviewed = () => setApprovalReviewed(true);
+    const approved = () => {
+      setOpen(true);
+      setMobileExpanded(true);
+      void update({ guideStep: 6 });
+    };
+    const approvalReviewed = () => {
+      setApprovalReviewed(true);
+      setMobileExpanded(true);
+    };
     const approvalReopened = () => setApprovalReviewed(false);
     window.addEventListener("retainai:analysis-complete", analyzed);
     window.addEventListener("retainai:approval-created", approved);
@@ -134,6 +163,17 @@ export function DemoGuide() {
   });
 
   const step = snapshot?.workspace.guideStep ?? 0;
+
+  useEffect(() => {
+    if (!isMobile) {
+      mobileStateInitialized.current = false;
+      return;
+    }
+    if (snapshot && !mobileStateInitialized.current) {
+      setMobileExpanded(step < 5);
+      mobileStateInitialized.current = true;
+    }
+  }, [isMobile, snapshot, step]);
 
   useEffect(() => {
     if (!pendingIntro || pathname !== guidedStagePaths[pendingIntro]) return;
@@ -171,8 +211,30 @@ export function DemoGuide() {
     return <button onClick={() => setOpen(true)} className="demo-guide-launcher fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#177553] px-4 py-3 text-xs font-bold text-white shadow-xl"><Sparkles className="h-4 w-4" /> Demo assistant <ChevronDown className="h-4 w-4 rotate-180" /></button>;
   }
 
+  const mobileHint = step < 5
+    ? "Continue demo setup"
+    : step === 5
+      ? pathname === "/customers"
+        ? "Next · Open the Inbox"
+        : analysisDone
+          ? "Next · Add draft to approvals"
+          : "Next · Analyze the message"
+      : step === 6
+        ? approvalReviewed
+          ? "Finish the demo"
+          : "Next · Review the approval"
+        : "Demo complete · Reset anytime";
+
   return (
     <>
+      {isMobile && mobileExpanded && !transitionStage && <button className="demo-assistant-scrim fixed inset-0 z-[45] bg-[#0d1812]/28 backdrop-blur-[2px]" onClick={() => setMobileExpanded(false)} aria-label="Close demo assistant" />}
+      {isMobile && !mobileExpanded && !transitionStage && (
+        <button className="demo-mobile-dock fixed z-50 flex min-h-14 items-center gap-3 rounded-2xl border border-[#c9d9d0] bg-white px-3 py-2 text-left shadow-[0_14px_36px_rgba(16,42,28,0.18)]" onClick={() => setMobileExpanded(true)} aria-label={`Open demo assistant. ${mobileHint}`}>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#177553] text-white"><Sparkles className="h-4 w-4" /></span>
+          <span className="min-w-0 flex-1"><span className="block text-[10px] font-bold uppercase tracking-[0.08em] text-[#708078]">Demo · {Math.min(step + 1, 8)}/8</span><span className="mt-0.5 block truncate text-xs font-bold text-[#213128]">{mobileHint}</span></span>
+          <ChevronDown className="h-4 w-4 shrink-0 rotate-180 text-[#708078]" />
+        </button>
+      )}
       {transitionStage && (
         <div className="demo-step-overlay fixed inset-0 z-[70] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="demo-step-title">
           <button className="absolute inset-0 bg-[#0d1812]/28 backdrop-blur-[3px]" onClick={() => setTransitionStage(null)} aria-label="Continue demo" />
@@ -262,11 +324,11 @@ export function DemoGuide() {
           </section>
         </div>
       )}
-      <aside className="demo-guide-card fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-[380px] overflow-hidden rounded-2xl border border-[#cddbd3] bg-white shadow-[0_18px_48px_rgba(20,42,30,0.16)]">
-      <header className="flex items-center gap-3 bg-[#132019] px-4 py-3.5 text-white">
+      <aside className={`demo-guide-card fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-[380px] overflow-hidden rounded-2xl border border-[#cddbd3] bg-white shadow-[0_18px_48px_rgba(20,42,30,0.16)] ${isMobile && (!mobileExpanded || transitionStage) ? "hidden" : ""}`}>
+      <header className="demo-guide-header flex items-center gap-3 bg-[#132019] px-4 py-3.5 text-white">
         <span className="demo-guide-spark flex h-8 w-8 items-center justify-center rounded-lg bg-[#48b889] text-[#102018]"><Sparkles className="h-4 w-4" /></span>
         <div className="flex-1"><p className="text-xs font-bold">RetainAI demo assistant</p><p className="mt-0.5 text-[10px] text-[#aebeb5]">Step {Math.min(step + 1, 8)} of 8 · Anonymous sandbox</p></div>
-        <button onClick={() => setOpen(false)} aria-label="Minimize demo assistant" className="-mr-2 flex h-11 w-11 items-center justify-center rounded-lg text-[#aebeb5] hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
+        <button onClick={dismissAssistant} aria-label="Minimize demo assistant" className="-mr-2 flex h-11 w-11 items-center justify-center rounded-lg text-[#aebeb5] hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
       </header>
       <div className="h-1 bg-[#e7ebe7]"><div className="demo-guide-progress h-full bg-[#48b889]" style={{ width: `${((step + 1) / 8) * 100}%` }} /></div>
       <div key={`${step}-${analysisDone ? "done" : "active"}`} className="demo-guide-content p-4">
@@ -342,7 +404,7 @@ export function DemoGuide() {
 
         {step === 4 && <div><p className="text-sm font-bold">Customer portfolio created</p><p className="mt-2 text-xs leading-5 text-[#69756e]">You now have {snapshot.workspace.customerCount} customers and {snapshot.workspace.conversationCount} messages. Next, see how RetainAI organizes their health scores, risks, renewals, and usage changes.</p><Button className="mt-4 w-full" disabled={busy} onClick={() => void openCustomerPortfolio()}>{busy && <LoaderCircle className="h-4 w-4 animate-spin" />} Explore customer portfolio</Button></div>}
 
-        {step === 5 && <div><p className="text-sm font-bold">{analysisDone ? "Send the draft for approval" : pathname === "/customers" ? "Explore the customer portfolio" : "Analyze the first customer message"}</p><p className="mt-2 text-xs leading-5 text-[#69756e]">{analysisDone ? <>Review the evidence and email draft, then click <strong>Add to approvals</strong>. The agent cannot send it by itself.</> : pathname === "/customers" ? <>Review the customer signals on this page. When you are ready, continue to the Inbox to see how RetainAI handles a real cancellation message.</> : <>Open the cancellation message and click <strong>Analyze message</strong>. RetainAI will inspect customer signals, policy guidance, and prepare a retention response.</>}</p>{pathname !== "/inbox" ? <Button className="mt-4 w-full" onClick={() => analysisDone ? router.push("/inbox") : openCustomerInbox()}>{analysisDone ? "Return to Inbox" : "Continue to customer inbox"}</Button> : <Button variant="outline" className="mt-4 w-full" onClick={() => setOpen(false)}>{analysisDone ? "Show analysis and draft" : "Show message to analyze"}</Button>}</div>}
+        {step === 5 && <div><p className="text-sm font-bold">{analysisDone ? "Send the draft for approval" : pathname === "/customers" ? "Explore the customer portfolio" : "Analyze the first customer message"}</p><p className="mt-2 text-xs leading-5 text-[#69756e]">{analysisDone ? <>Review the evidence and email draft, then click <strong>Add to approvals</strong>. The agent cannot send it by itself.</> : pathname === "/customers" ? <>Review the customer signals on this page. When you are ready, continue to the Inbox to see how RetainAI handles a real cancellation message.</> : <>Open the cancellation message and click <strong>Analyze message</strong>. RetainAI will inspect customer signals, policy guidance, and prepare a retention response.</>}</p>{pathname !== "/inbox" ? <Button className="mt-4 w-full" onClick={() => analysisDone ? router.push("/inbox") : openCustomerInbox()}>{analysisDone ? "Return to Inbox" : "Continue to customer inbox"}</Button> : <Button variant="outline" className="mt-4 w-full" onClick={dismissAssistant}>{analysisDone ? "Show analysis and draft" : "Show message to analyze"}</Button>}</div>}
 
         {step === 6 && (
           <div>
@@ -356,7 +418,7 @@ export function DemoGuide() {
             </p>
             {approvalReviewed
               ? <Button className="mt-4 w-full" disabled={busy} onClick={() => void update({ completed: true })}>{busy && <LoaderCircle className="h-4 w-4 animate-spin" />} Finish demo</Button>
-              : pathname !== "/approvals" ? <Button className="demo-guide-primary mt-4 w-full" onClick={openApprovals}><CheckSquare2 className="h-4 w-4" /> Open approvals</Button> : <Button variant="outline" className="mt-4 w-full" onClick={() => setOpen(false)}>Show approval queue</Button>}
+              : pathname !== "/approvals" ? <Button className="demo-guide-primary mt-4 w-full" onClick={openApprovals}><CheckSquare2 className="h-4 w-4" /> Open approvals</Button> : <Button variant="outline" className="mt-4 w-full" onClick={dismissAssistant}>Show approval queue</Button>}
           </div>
         )}
 
