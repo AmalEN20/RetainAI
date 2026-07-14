@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { DEMO_SESSION_COOKIE } from "@/lib/demo/session";
-import { ensureDemoWorkspace, updateDemoWorkspace } from "@/lib/demo/store";
+import { ensureDemoWorkspace, resetDemoWorkspace, updateDemoWorkspace } from "@/lib/demo/store";
 
 const updateSchema = z.object({
   companyName: z.string().trim().max(80).optional(),
@@ -25,7 +25,9 @@ function responseWithSession(payload: unknown, id: string) {
 
 export async function GET(request: Request) {
   const id = sessionId(request);
-  return responseWithSession(await ensureDemoWorkspace(id), id);
+  const shouldReset = new URL(request.url).searchParams.get("reset") === "1";
+  const snapshot = shouldReset ? await resetDemoWorkspace(id) : await ensureDemoWorkspace(id);
+  return responseWithSession(snapshot, id);
 }
 
 export async function PATCH(request: Request) {

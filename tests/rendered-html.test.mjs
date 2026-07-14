@@ -86,6 +86,30 @@ test("returns ranked knowledge chunks with citations", async () => {
   assert.match(payload.matches[0].citation, /Cancellation & Billing Policy/);
 });
 
+test("starts a fresh demo workspace on every full page load", async () => {
+  const initialResponse = await requestApp("/api/demo", { headers: { accept: "application/json" } });
+  assert.equal(initialResponse.status, 200);
+  const cookie = initialResponse.headers.get("set-cookie")?.split(";")[0];
+  assert.ok(cookie);
+
+  const updateResponse = await requestApp("/api/demo", {
+    method: "PATCH",
+    headers: { "content-type": "application/json", accept: "application/json", cookie },
+    body: JSON.stringify({ companyName: "Persisted Company", guideStep: 5 }),
+  });
+  assert.equal(updateResponse.status, 200);
+
+  const resetResponse = await requestApp("/api/demo?reset=1", {
+    headers: { accept: "application/json", cookie },
+  });
+  assert.equal(resetResponse.status, 200);
+  const reset = await resetResponse.json();
+  assert.equal(reset.workspace.guideStep, 0);
+  assert.equal(reset.workspace.companyName, "");
+  assert.equal(reset.workspace.customerCount, 0);
+  assert.equal(reset.workspace.conversationCount, 0);
+});
+
 test("rejects an unknown conversation", async () => {
   const response = await requestApp("/api/analyze", {
     method: "POST",

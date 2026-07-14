@@ -49,7 +49,7 @@ export function DemoGuide() {
 
   useEffect(() => {
     let active = true;
-    void fetch("/api/demo", { cache: "no-store" })
+    void fetch("/api/demo?reset=1", { cache: "no-store" })
       .then((response) => response.json() as Promise<DemoSnapshot>)
       .then((data) => {
         if (!active) return;
